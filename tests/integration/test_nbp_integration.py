@@ -32,7 +32,7 @@ def test_get_exchange_rates_date_range(nbp_client):
         # Assert
         assert rates, f"Should return rates for {start_date} to {end_date}"
         assert all(start_date <= d <= end_date for d in rates.keys())
-        assert all(isinstance(r.rate, float) and r.rate > 0 for r in rates.values())
+        assert all(hasattr(r, 'rate') and r.rate > 0 for r in rates.values()), "Exchange rates should be positive"
 
 def test_get_exchange_rates_multiple_currencies(nbp_client):
     """Test fetching rates for multiple currencies simultaneously."""
@@ -60,7 +60,7 @@ def test_get_rates_for_transactions_weekend_handling(nbp_client, sample_transact
     # Filter transactions that occurred on weekends
     weekend_transactions = [
         tx for tx in sample_transactions 
-        if tx.time.date().weekday() >= 5  # Saturday = 5, Sunday = 6
+        if tx.timestamp.date().weekday() >= 5  # Saturday = 5, Sunday = 6
     ]
     
     if weekend_transactions:

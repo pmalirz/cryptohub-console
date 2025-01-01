@@ -1,0 +1,9 @@
+platform,trade_id,trading_pair,base_currency,quote_currency,price,timestamp,volume,total_cost,fee,trade_type
+Kraken,trade1,BTCEUR,BTC,EUR,35000.50,2024-02-08 14:30:00,0.5,17500.25,5.25,buy
+Kraken,trade2,ETHEUR,ETH,EUR,2250.75,2024-02-08 15:45:00,2.0,4501.50,1.35,sell
+Binance,trade3,SOLUSDT,SOL,USDT,95.25,2024-02-08 16:20:00,10.0,952.50,2.85,buy
+Kraken,trade4,DOGEEUR,DOGE,EUR,0.075,2024-02-09 09:15:00,1000.0,75.00,0.22,sell
+Binance,trade5,BTCUSD,BTC,USD,42000.00,2024-02-09 10:30:00,0.25,10500.00,31.50,buy
+Kraken,trade6,XRPEUR,XRP,EUR,0.52,2024-02-09 11:45:00,500.0,260.00,0.78,buy
+Binance,trade7,ADAUSD,ADA,USD,0.45,2024-02-10 13:20:00,1000.0,450.00,1.35,sell
+Kraken,trade8,DOTEUR,DOT,EUR,7.25,2024-02-10 14:40:00,100.0,725.00,2.17,buy

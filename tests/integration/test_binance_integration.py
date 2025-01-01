@@ -8,7 +8,7 @@ from cryptohub.config import load_config
 def binance_api():
     key = os.getenv("BINANCE_API_KEY_1", "")
     secret = os.getenv("BINANCE_API_SECRET_1", "")
-    pair_pattern = "^NEAREUR$" # Remember that this require the pair to be exactly NEAREUR on the Binance exchange (this is set up via env / GitHub Actions).
+    pair_pattern = "^SOLEUR$" # Remember that this require the pair to be exactly SOLEUR on the Binance exchange (this is set up via env / GitHub Actions).
     return BinanceAPI(key, secret, pair_pattern = pair_pattern)
 
 def test_download_asset_pairs_integration(binance_api):

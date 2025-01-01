@@ -1,9 +1,0 @@
-pair,base_currency,quote_currency,price,time,ordertxid,aclass,maker,trade_id,vol,ordertype,cost,fee,postxid,misc,leverage,margin,type
-BTCEUR,BTC,EUR,35000.50,2024-02-08 14:30:00,tx123,currency,True,trade1,0.5,limit,17500.25,5.25,post123,,0,0,buy
-ETHEUR,ETH,EUR,2250.75,2024-02-08 15:45:00,tx124,currency,True,trade2,2.0,limit,4501.50,1.35,post124,,0,0,sell
-SOLUSDT,SOL,USD,95.25,2024-02-08 16:20:00,tx125,currency,False,trade3,10.0,market,952.50,2.85,post125,,0,0,buy
-DOGEEUR,DOGE,EUR,0.075,2024-02-09 09:15:00,tx126,currency,True,trade4,1000.0,limit,75.00,0.22,post126,,0,0,sell
-BTCUSD,BTC,USD,42000.00,2024-02-09 10:30:00,tx127,currency,False,trade5,0.25,market,10500.00,31.50,post127,,0,0,buy
-XRPEUR,XRP,EUR,0.52,2024-02-09 11:45:00,tx128,currency,True,trade6,500.0,limit,260.00,0.78,post128,,0,0,buy
-ADAUSD,ADA,USD,0.45,2024-02-10 13:20:00,tx129,currency,True,trade7,1000.0,limit,450.00,1.35,post129,,0,0,sell
-DOTEUR,DOT,EUR,7.25,2024-02-10 14:40:00,tx130,currency,False,trade8,100.0,market,725.00,2.17,post130,,0,0,buy
