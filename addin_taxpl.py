@@ -159,9 +159,13 @@ def process_pit38_tax(config, trades):
     for field_name, value in asdict(pit38).items():
         description = field_descriptions.get(field_name, field_name)
         logger.info(f"{description}: {value}")
-        table.add_row(description, str(value))
+        # Apply red color to Field 39
+        if field_name == "field39_tax":
+            value_str = f"[red]{value}[/red]"
+        else:
+            value_str = str(value)
+        table.add_row(description, value_str)
 
-    
     # Display the calculations in a nicely formatted table using Rich
     console.print(table, emoji=True)
     
