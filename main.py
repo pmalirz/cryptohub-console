@@ -22,29 +22,35 @@ def main():
     display_banner()
     logger.info("Starting the main function")
     config = load_config()
-    if not config["krakenKey"] or not config["krakenSecret"]:
-        logger.error("API credentials missing. Please provide them in .env file or via CLI arguments.")
+    if not config.hasAnyKrakenAccounts():
+        logger.error("API credentials for Kraken account missing. Please provide them in .env file or via CLI arguments.")
         return
 
-    kraken = KrakenAPI(config["krakenKey"], config["krakenSecret"])
+    # Get Trades from all configured Kraken accounts
+    trades = []
+    for account_id, account in config.kraken_accounts.items():
+        kraken = KrakenAPI(account.api_key, account.api_secret, account.name)
+        account_trades = kraken.download_all_trades()
+        trades.extend(account_trades)
+        logger.info(f"Trades downloaded successfully for account: {account.name if account.name else 'Unnamed Account'}")
     
-    trades = kraken.download_all_trades()
-    logger.info("Trades downloaded successfully")
-    
+    #Get exchange rates from NBP
     nbp = NBPClient()
-
     rates = nbp.get_rates_for_transactions(transactions=trades)
     logger.info("NBP downloaded successfully")
     
-    tax_transactions = create_tax_transactions(trades, rates, config["settlementDay"])
+    # Create transactions model for tax calculation
+    tax_transactions = create_tax_transactions(trades, rates, config.settlement_day)
     logger.info(f"Mapped {len(tax_transactions)} transactions with rates")
     
-    # Save tax transactions to file
+    # Save tax transactions model to file
     save_trades_to_excel(tax_transactions)
     
-    pit38 = calculate_pit_38(tax_transactions, config["taxYear"], Decimal('0.00'))
+    # Calculate PIT-38 tax
+    
+    pit38 = calculate_pit_38(tax_transactions, config.tax_year, Decimal('0.00'))
     logger.info("﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌")
-    logger.info(f"PIT-38 Calculations for tax year {config['taxYear']}:")
+    logger.info(f"PIT-38 Calculations for tax year {config.tax_year}:")
     field_descriptions = {
         "year": "✔️ Tax year 📅",
         "field34_income": "✔️ Field 34: Total income from crypto sales 💰",

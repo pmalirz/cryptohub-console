@@ -15,10 +15,11 @@ logger = logging.getLogger(__name__)
 class KrakenAPI:
     BASE_URL = "https://api.kraken.com"
     
-    def __init__(self, key, secret):
+    def __init__(self, key: str, secret: str, platform_name: str = "Kraken"):
         self.key = key
         self.secret = secret
         self.last_nonce = 0  # track last nonce
+        self.platform_name = platform_name
 
     def _get_nonce(self):
         nonce = int(time.time() * 1000)
@@ -76,7 +77,7 @@ class KrakenAPI:
             quote_currency = pair_info.quote_currency
         
         return Transaction(
-            platform="Kraken",
+            platform=self.platform_name,
             pair=pair,
             base_currency=base_currency,
             quote_currency=quote_currency,
