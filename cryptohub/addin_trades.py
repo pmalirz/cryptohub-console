@@ -66,7 +66,9 @@ def save_trades_to_excel(trades: List[Transaction], filename: str = "trades.xlsx
     # Define formats with Polish locale (comma as decimal separator)
     buy_format = workbook.add_format({'bg_color': '#C6EFCE'})  # Light green
     sell_format = workbook.add_format({'bg_color': '#FFC7CE'})  # Light red
-    number_format = workbook.add_format({'num_format': '#.##0,00000000'})  # For crypto values
+    
+    # Corrected number format: thousand separator (,) and 12 decimal places
+    number_format = workbook.add_format({'num_format': '#,##0.000000000000'})  # US-style: 92,447,016.604180000000
         
     # Set numeric format for specific columns
     numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee']
