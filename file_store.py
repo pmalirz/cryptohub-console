@@ -42,18 +42,6 @@ def _create_dataframe(trades: List[TransactionForTax]) -> pd.DataFrame:
     
     return df
 
-def save_trades(trades: List[TransactionForTax]):
-    """Save trades to JSON and CSV formats."""
-    df = _create_dataframe(trades)
-    
-    # Save to JSON using pandas to_json
-    df.to_json("tax_transactions.json", orient='records', indent=4)
-
-    # Save to CSV
-    df.to_csv("tax_transactions.csv", index=False)
-    
-    logger.info("Saved tax transactions to tax_transactions.json and tax_transactions.csv")
-
 def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_transactions.xlsx"):
     """
     Save trades to Excel with color formatting.

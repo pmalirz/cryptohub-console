@@ -48,7 +48,6 @@ def main():
     logger.info(f"Mapped {len(tax_transactions)} transactions with rates")
     
     # Save tax transactions to file
-    save_trades(tax_transactions)    
     save_trades_to_excel(tax_transactions)
     
 if __name__ == "__main__":
