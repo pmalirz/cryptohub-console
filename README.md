@@ -81,8 +81,7 @@ Alternatively, if you wish to run an executable after building it, refer to the 
 
 ### Environment Variables
 
-A `.env` file is the preferred way to setup the CryptHub (comparing to passing the parameters via commandline parameters as stated above).
-Create the `.env` file in the project root directory with your configuration:
+Create a `.env` file in the project root directory with your configuration:
 
 ```properties
 # Kraken account configuration
@@ -126,6 +125,9 @@ python -m cryptohub.main --TAX_YEAR 2024 --SETTLEMENT_DAY -1
 # Override Kraken API credentials
 python -m cryptohub.main --KRAKEN_1 "My Account" --KRAKEN_API_KEY_1 your_key --KRAKEN_API_SECRET_1 your_secret
 ```
+
+However, the `.env` file is the preferred way to setup the CryptHub (comparing to passing the parameters via commandline parameters as stated above).
+
 
 ### Configuration Priority
 
