@@ -25,6 +25,7 @@ myenv/
 logs/
 tax_transactions.json
 tax_transactions.csv
+tax_transactions.xlsx
 *.bak
 
 # Environment variables and secrets
