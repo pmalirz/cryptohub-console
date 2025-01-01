@@ -108,4 +108,6 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_t
         worksheet.set_column(idx, idx, max_len)
     
     writer.close()
-    logger.info(f"Saved tax transactions to {filename}")
+    
+    colored_filename = f"\033[94m{filename}\033[0m"
+    logger.info(f"Saved tax transactions to {colored_filename}. You can open the file to make your own analysis and calculations.")
