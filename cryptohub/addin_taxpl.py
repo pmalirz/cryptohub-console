@@ -9,6 +9,8 @@ import os
 import pandas as pd
 import questionary
 
+from cryptohub.config import Configuration
+
 from .nbp import NBPClient
 from .tax_processor import create_tax_transactions, calculate_pit_38
 from .transaction import Transaction, TransactionForTax
@@ -197,9 +199,34 @@ def get_recent_trade_files(pattern: str = "trades_*.xlsx", limit: int = 5) -> li
     # Return only the specified number of files
     return [f.name for f in files[:limit]]
 
-def process_pit38_tax(config):
+def process_pit38_tax(config: Configuration) -> dict:
     """Process PIT-38 tax calculations based on trades from Excel file."""
     console.rule("[bold blue]🇵🇱 PIT-38 Tax Calculation[/bold blue]")
+    
+    # Ask for tax calculation parameters with defaults from config
+    tax_year = questionary.text(
+        "Enter tax year:",
+        default=str(config.tax_year or datetime.now().year),
+        validate=lambda x: x.isdigit() and int(x) > 2000
+    ).ask()
+    
+    settlement_day = questionary.text(
+        "Enter settlement day (-1 for last day of the year):",
+        default=str(config.settlement_day or -1),
+        validate=lambda x: x.isdigit() or (x.startswith('-') and x[1:].isdigit())
+    ).ask()
+    
+    previous_year_cost = questionary.text(
+        "Enter previous year costs from field 36:",
+        default=str(config.previous_year_cost_field36 or "0.00"),
+        validate=lambda x: all(part.isdigit() for part in x.replace(".", "").replace(",", ""))
+    ).ask()
+    
+    # Create a temporary config with user-provided values
+    working_config = config.copy()
+    working_config.tax_year = int(tax_year)
+    working_config.settlement_day = int(settlement_day)
+    working_config.previous_year_cost_field36 = Decimal(previous_year_cost.replace(",", "."))
     
     # Get recent trade files
     recent_files = get_recent_trade_files()
@@ -254,16 +281,20 @@ def process_pit38_tax(config):
     console.print("📥 [bold green]NBP rates downloaded successfully.[/bold green]")
     
     # Create transactions model for tax calculation
-    tax_transactions = create_tax_transactions(trades, rates, config.settlement_day)
+    tax_transactions = create_tax_transactions(trades, rates, working_config.settlement_day)
     logger.info(f"Mapped {len(tax_transactions)} transactions with rates")
     
     # Save tax transactions model to file
     save_trades_to_excel(tax_transactions)
     
     # Calculate PIT-38
-    pit38 = calculate_pit_38(tax_transactions, config.tax_year, config.previous_year_cost_field36)
+    pit38 = calculate_pit_38(
+        tax_transactions, 
+        working_config.tax_year, 
+        working_config.previous_year_cost_field36
+    )
     
-    logger.info(f"PIT-38 Calculations for tax year {config.tax_year}:")
+    logger.info(f"PIT-38 Calculations for tax year {working_config.tax_year}:")
     
     field_descriptions = {
         "year": "Tax year",
@@ -276,7 +307,7 @@ def process_pit38_tax(config):
     }
     
     # Log details and also prepare data for user display
-    table = Table(title=f"PIT-38 Calculations for Tax Year {config.tax_year}")
+    table = Table(title=f"PIT-38 Calculations for Tax Year {working_config.tax_year}")
     table.add_column("Description", justify="left")
     table.add_column("Value", justify="right")
     
