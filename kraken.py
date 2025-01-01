@@ -6,6 +6,7 @@ import base64
 import urllib.parse  
 import logging
 import datetime
+from decimal import Decimal
 
 from transaction import Pair, Transaction
 
@@ -61,7 +62,7 @@ class KrakenAPI:
     
     def transactions_from_kraken_data(self, data):
         """
-        Converts Kraken trade data to Transaction object.
+        Converts Kraken trade data to Transaction object using Decimal for monetary values.
         Uses pair_to_quote mapping to get base and quote currencies.
         """
         pair = data["pair"]
@@ -79,20 +80,20 @@ class KrakenAPI:
             pair=pair,
             base_currency=base_currency,
             quote_currency=quote_currency,
-            price=float(data["price"]),
+            price=Decimal(str(data["price"])),
             time=datetime.datetime.fromtimestamp(data["time"]),
             ordertxid=data["ordertxid"],
             aclass=data["aclass"],
             maker=bool(data["maker"]),
             trade_id=str(data["trade_id"]),
-            vol=float(data["vol"]),
+            vol=Decimal(str(data["vol"])),
             ordertype=data["ordertype"],
-            cost=float(data["cost"]),
-            fee=float(data["fee"]),            
+            cost=Decimal(str(data["cost"])),
+            fee=Decimal(str(data["fee"])),            
             postxid=data["postxid"],
             misc=data["misc"] or "",
-            leverage=float(data["leverage"]),
-            margin=float(data["margin"]),
+            leverage=Decimal(str(data["leverage"])),
+            margin=Decimal(str(data["margin"])),
             type=data["type"]            
         )        
         

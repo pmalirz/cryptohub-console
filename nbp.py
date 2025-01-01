@@ -4,6 +4,7 @@ from collections import defaultdict
 import logging
 import requests 
 from transaction import ExchangeRate, Transaction
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ class NBPClient:
                 datetime.strptime(rate["effectiveDate"], "%Y-%m-%d").date(): 
                 ExchangeRate(
                     rateDate=datetime.strptime(rate["effectiveDate"], "%Y-%m-%d").date(),
-                    rate=float(rate["mid"]),
+                    rate=Decimal(str(rate["mid"])),  # Changed from float to Decimal
                     base_currency=currency,
                     quote_currency="PLN"
                 )

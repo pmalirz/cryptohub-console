@@ -1,6 +1,6 @@
 from config import load_config
 from kraken import KrakenAPI
-from file_store import save_trades
+from file_store import save_trades, save_trades_to_excel
 from nbp import NBPClient
 import logging
 from colorama import init, Fore, Style
@@ -49,6 +49,7 @@ def main():
     
     # Save tax transactions to file
     save_trades(tax_transactions)    
+    save_trades_to_excel(tax_transactions)
     
 if __name__ == "__main__":
     main()
