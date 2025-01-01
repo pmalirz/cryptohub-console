@@ -34,6 +34,16 @@ class Configuration:
         Returns True if at least one account exists, False otherwise.
         """
         return bool(self.kraken_accounts) or bool(self.binance_accounts)
+    
+    def copy(self) -> 'Configuration':
+        """Create a deep copy of the configuration."""
+        return Configuration(
+            kraken_accounts=self.kraken_accounts.copy(),
+            binance_accounts=self.binance_accounts.copy(),
+            settlement_day=self.settlement_day,
+            tax_year=self.tax_year,
+            previous_year_cost_field36=self.previous_year_cost_field36
+        )
 
 def load_config() -> Configuration:
     """
