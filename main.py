@@ -1,14 +1,11 @@
 from config import load_config
 from kraken import KrakenAPI
-from file_store import save_trades, save_trades_to_excel
+from file_store import save_trades_to_excel
 from nbp import NBPClient
 import logging
-from colorama import init, Fore, Style
-from datetime import datetime, timedelta
-import json
+from colorama import init, Fore
 import set_logging
 from tax_processor import create_tax_transactions
-from transaction import Transaction, TransactionForTax, ExchangeRate
 
 # Initialize colorama
 init(autoreset=True)
