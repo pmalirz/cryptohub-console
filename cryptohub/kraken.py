@@ -22,7 +22,7 @@ class KrakenAPI:
             logger.debug(f"Successfully retrieved trades history with offset {offset}")
         return response
 
-    def transactions_from_kraken_data(self, data):
+    def transactions_from_kraken_data(self, trade_id, data):
         pair = data["pair"]  # trading_pair from the API
         pair_info = self.pair_to_quote.get(pair)
         if not pair_info:
@@ -35,7 +35,7 @@ class KrakenAPI:
 
         return Transaction(
             platform=self.platform_name,
-            trade_id=str(data["trade_id"]),
+            trade_id=trade_id,
             trading_pair=pair,
             base_currency=base_currency,
             quote_currency=quote_currency,
@@ -107,7 +107,7 @@ class KrakenAPI:
                     break
 
                 for trade_id, trade_data in trades.items():
-                    transaction = self.transactions_from_kraken_data(trade_data)
+                    transaction = self.transactions_from_kraken_data(trade_id, trade_data)
                     transactions.append(transaction)
 
                 count = len(trades)
