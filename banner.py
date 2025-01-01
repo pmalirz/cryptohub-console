@@ -1,28 +1,43 @@
-from colorama import Fore
+from rich.console import Console, Group
+from rich.panel import Panel
+from rich import box
+from rich.text import Text
+from rich.align import Align
 
 def display_banner():
-    width = 64
-    top_bottom = f"{Fore.GREEN}" + "#" * width
-    # Define a custom ANSI escape sequence for orange
-    orange = "\033[38;5;208m"
+    """Display a beautiful banner using rich library."""
+    console = Console()
     
-    # Plain texts
-    left = "CryptoTaxPL - Copyright (c) 2025 by "
-    name = "Przemek Malirz"
-    title_plain = left + name
-    contact_text = "Contact: p.malirz@gmail.com"
+    # Create styled texts
+    title = Text()
+    title.append("CryptoTaxPL - Copyright (c) 2025 by ", style="yellow")
+    title.append("Przemek Malirz", style="orange1")
     
-    # Center the plain title within the frame (accounting for 4 extra characters: '# ' and ' #')
-    centered_title = title_plain.center(width - 4)
-    # Replace the name with its orange-colored version in the centered text
-    colored_centered_title = centered_title.replace(name, f"{orange}{name}{Fore.LIGHTYELLOW_EX}")
+    contact = Text("Contact: p.malirz@gmail.com", style="yellow")
+    linkedin = Text("LinkedIn: https://www.linkedin.com/in/przemyslawmalirz/", style="blue underline")
     
-    line_title = f"{Fore.GREEN}# " + f"{Fore.LIGHTYELLOW_EX}" + colored_centered_title + f" {Fore.GREEN}#"
-    line_contact = f"{Fore.GREEN}# " + f"{Fore.LIGHTYELLOW_EX}" + contact_text.center(width - 4) + f" {Fore.GREEN}#"
-    banner = f"""
-{top_bottom}
-{line_title}
-{line_contact}
-{top_bottom}
-    """
-    print(banner)
+    # Create a group of aligned elements
+    content = Group(
+        Align.center(title),
+        Align.center(contact),
+        Align.center(linkedin),
+    )
+    
+    # Create and display panel with the grouped content
+    panel = Panel(
+        content,
+        box=box.HEAVY,
+        border_style="green",
+        padding=(1, 2),
+        title="[bold green]CryptoTaxPL[/]",
+        subtitle="[bold green]v1.0.0[/]"
+    )
+    
+    # Print with spacing
+    console.print("\n")
+    console.print(panel)
+    console.print("\n")
+
+# For testing the banner display when run directly.
+if __name__ == "__main__":
+    display_banner()
