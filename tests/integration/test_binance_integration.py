@@ -6,11 +6,10 @@ from cryptohub.config import load_config
 
 @pytest.fixture
 def binance_api():
-    load_config()
     key = os.getenv("BINANCE_API_KEY_1", "")
     secret = os.getenv("BINANCE_API_SECRET_1", "")
-    filter_quote_assets = ["EUR"]
-    return BinanceAPI(key, secret, filter_quote_assets)
+    pair_pattern = "^NEAREUR$" # Remember that this require the pair to be exactly NEAREUR on the Binance exchange (this is set up via env / GitHub Actions).
+    return BinanceAPI(key, secret, pair_pattern = pair_pattern)
 
 def test_download_asset_pairs_integration(binance_api):
     pairs = binance_api.download_asset_pairs()
@@ -33,9 +32,9 @@ def test_download_all_orders_integration(binance_api):
     # If any transactions are returned, check that each has essential fields.
     if transactions:
         for txn in transactions:
-            assert txn.ordertxid, "Transaction ordertxid should not be empty."
+            assert txn.trade_id, "Transaction trade_id should not be empty."
             # The volume should be positive.
-            assert txn.vol > 0, "Transaction volume should be positive."
+            assert txn.volume > 0, "Transaction volume should be positive."
 
 def test_download_all_trades_timing(binance_api):
     start_time = time.time()

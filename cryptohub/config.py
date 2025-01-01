@@ -170,8 +170,8 @@ def load_config() -> Configuration:
         i += 1
 
     # Validate configuration
-    if not config['krakenAccounts']:
-        raise ValueError("No Kraken accounts configured")
+    if not config['krakenAccounts'] and not config['binanceAccounts']:
+        raise ValueError("No accounts configured. At least one Kraken or Binance account is required")
     if not config['taxYear']:
         raise ValueError("Tax year must be provided in .env or via --TAX_YEAR")
         
