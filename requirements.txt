@@ -11,3 +11,4 @@ rich>=13.7.0,<14.0.0
 questionary>=2.1.0
 python-binance>=1.0.27
 python-kraken-sdk>=3.1.6
+openpyxl>=3.1.3
