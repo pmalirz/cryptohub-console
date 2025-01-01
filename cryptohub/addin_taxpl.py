@@ -122,18 +122,31 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "trade
     writer.close()
     
     colored_filename = f"[blue]{filename}[/blue]"
-    logger.info(f"Saved tax transactions to {colored_filename}. You can open the file to make your own analysis and calculations.")
+    logger.info(f"Saved trades together with tax calculations to {colored_filename}.")
     
     # User-friendly message using Rich
-    console.print(Panel(f"Saved tax transactions to {colored_filename}.\nOpen the file to review your analysis!",
-                          title="Excel File Saved", border_style="green"))
+    console.print(f"💾 Saved trades together with tax calculations to {colored_filename}.")
 
 
 def process_pit38_tax(config, trades):
-    # Get exchange rates from NBP
+    # Print starting message with Polish flag emoji using Rich
+    console.rule("[bold blue]PIT-38 Tax Calculation[/bold blue]")
+        
+    # Get exchange rates from NBP with a progress bar
+    from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
     nbp = NBPClient()
-    rates = nbp.get_rates_for_transactions(transactions=trades)
+    
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        TimeElapsedColumn(),
+        transient=True
+    ) as progress:
+        task = progress.add_task("Downloading NBP rates for all trades...📈", total=None)
+        rates = nbp.get_rates_for_transactions(transactions=trades)
+    
     logger.info("NBP downloaded successfully")
+    console.print("📥 [bold green]NBP rates downloaded successfully.[/bold green]")
     
     # Create transactions model for tax calculation
     tax_transactions = create_tax_transactions(trades, rates, config.settlement_day)
@@ -162,17 +175,13 @@ def process_pit38_tax(config, trades):
     table.add_column("Description", justify="left")
     table.add_column("Value", justify="right")
     
+    from dataclasses import asdict
     for field_name, value in asdict(pit38).items():
         description = field_descriptions.get(field_name, field_name)
         logger.info(f"{description}: {value}")
-        # Apply red color to Field 39
-        if field_name == "field39_tax":
-            value_str = f"[red]{value}[/red]"
-        else:
-            value_str = str(value)
+        value_str = f"[red]{value}[/red]" if field_name == "field39_tax" else str(value)
         table.add_row(description, value_str)
-
-    # Display the calculations in a nicely formatted table using Rich
+    
     console.print(table, emoji=True)
     
     return pit38

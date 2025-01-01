@@ -98,11 +98,12 @@ def save_trades_to_excel(trades: List[Transaction], filename: str = "trades.xlsx
     logger.info(f"Saved trades to {filename}. You can open the file to make your own analysis and calculations.")
     
     # Use Rich Panel to notify the user with a friendly message
-    console.print(Panel(f"Saved trades to [blue]{filename}[/blue].\nOpen the file to review your analysis!", 
-                          title="Excel File Saved", border_style="green"))
+    console.print(f"💾 Saved trades to [blue]{filename}[/blue].")
 
 
 def download_and_save_trades(config: Configuration):
+    console.rule("[bold blue]Downloading Trades[/bold blue]")
+    
     trades = []
     # Download trades from Kraken accounts.
     for account_id, account in config.kraken_accounts.items():

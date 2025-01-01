@@ -4,6 +4,7 @@ import datetime
 import time
 from decimal import Decimal
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn, TextColumn
+from rich.console import Console
 
 from binance.client import Client
 
@@ -162,6 +163,8 @@ class BinanceAPI:
                     symbol_txns.append(txn)
             return symbol_txns
 
+        console = Console()
+
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -171,13 +174,15 @@ class BinanceAPI:
         ) as progress:
             task = progress.add_task(description="Downloading Binance trades ✨...", total=total_pairs)
             
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="BinanceTradeDownloader") as executor:
-                futures = {executor.submit(process_symbol, symbol): symbol 
-                          for symbol in pair_mapping.keys()}
-                
-                for future in concurrent.futures.as_completed(futures):
-                    transactions.extend(future.result())
-                    progress.advance(task)
+            for symbol in pair_mapping.keys():
+                transactions.extend(process_symbol(symbol))
+                progress.advance(task)
 
         logger.info(f"Total trades processed: {len(transactions)}")
+        console.print(
+            f"📥 [bold green]Download completed successfully! "
+            f"Total trades processed: {len(transactions)}, "
+            f"Account: {self.platform_name}[/bold green]"
+        )
+        
         return transactions

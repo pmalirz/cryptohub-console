@@ -85,6 +85,9 @@ class KrakenAPI:
         self.pair_to_quote = self.download_asset_pairs()
 
         from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+        from rich.console import Console
+
+        console = Console()
 
         with Progress(
             SpinnerColumn(),
@@ -113,4 +116,9 @@ class KrakenAPI:
                 logger.debug(f"Downloaded and converted {count} trades, total: {len(transactions)}")
 
         logger.info(f"Total transactions processed: {len(transactions)}")
+        console.print(
+            f"📥 [bold green]Download completed successfully! "
+            f"Total trades processed: {len(transactions)}, "
+            f"Account: {self.platform_name}[/bold green]"
+        )
         return transactions
