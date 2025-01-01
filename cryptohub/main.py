@@ -36,7 +36,7 @@ def interactive_menu(config):
         ])
     ).ask()
     
-    if action == "Download All Trades":
+    if action == "Download Trades":
         # Gather available account names
         account_choices = []
         for acc in config.kraken_accounts.values():
