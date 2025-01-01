@@ -51,9 +51,6 @@ def main():
     
     # Process PIT-38 tax calculations (handled in the logs)
     process_pit38_tax(config, trades)    
-
-    # Calculate PIT-38
-    pit38 = calculate_pit_38(tax_transactions, config.tax_year, config.previous_year_cost_field36)
     
 if __name__ == "__main__":
     main()
