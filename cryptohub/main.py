@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 console = Console()
 
 def interactive_menu(config):
-    console.print("[bold blue]Welcome to CryptoTaxPL Interactive Menu[/bold blue]")
+    console.print("[bold blue]Welcome to CryptoHub Interactive Menu[/bold blue]")
     
     # Main menu with arrow navigation
     action = questionary.select(
