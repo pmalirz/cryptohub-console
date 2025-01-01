@@ -42,11 +42,11 @@ def main():
     # Save tax transactions to file
     save_trades_to_excel(tax_transactions)
     
-    pit38 = calculate_pit_38(tax_transactions, 2024, Decimal('0.00'))
+    pit38 = calculate_pit_38(tax_transactions, config["taxYear"], Decimal('0.00'))
     logger.info("﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌")
-    logger.info("PIT-38 Calculations:")
+    logger.info(f"PIT-38 Calculations for tax year {config['taxYear']}:")
     field_descriptions = {
-        "year": "Tax year 📅",
+        "year": "✔️ Tax year 📅",
         "field34_income": "✔️ Field 34: Total income from crypto sales 💰",
         "field35_costs_current_year": "✔️ Field 35: Costs from current year 💸",
         "field36_costs_previous_years": "✔️ Field 36: Unused costs from previous years 📉",
