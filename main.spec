@@ -32,7 +32,7 @@ VSVersionInfo_data = VSVersionInfo(
 )
 
 a = Analysis(
-    ['cryptohub/main.py'],
+    ['cryptohub/__main__.py'],
     pathex=[],
     binaries=[],
     datas=[
@@ -73,5 +73,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     version=VSVersionInfo_data,
-    icon='icon.ico'  # Ensure this path is correct if using an icon file
+    icon='cryptohub.ico'
 )
