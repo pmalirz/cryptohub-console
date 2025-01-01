@@ -9,8 +9,13 @@ from nbp import NBPClient
 from tax_processor import create_tax_transactions, calculate_pit_38
 from transaction import TransactionForTax
 
-logger = logging.getLogger(__name__)
+# Import Rich components for user-facing output
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 
+logger = logging.getLogger(__name__)
+console = Console()
 
 def _create_dataframe(trades: List[TransactionForTax]) -> pd.DataFrame:
     """Create a DataFrame from tax transactions."""
@@ -110,8 +115,12 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "trade
     
     writer.close()
     
-    colored_filename = f"\033[94m{filename}\033[0m"
+    colored_filename = f"[blue]{filename}[/blue]"
     logger.info(f"Saved tax transactions to {colored_filename}. You can open the file to make your own analysis and calculations.")
+    
+    # User-friendly message using Rich
+    console.print(Panel(f"Saved tax transactions to {colored_filename}.\nOpen the file to review your analysis!",
+                          title="Excel File Saved", border_style="green"))
 
 
 def process_pit38_tax(config, trades):
@@ -129,23 +138,31 @@ def process_pit38_tax(config, trades):
     
     # Calculate PIT-38 tax
     pit38 = calculate_pit_38(tax_transactions, config.tax_year, Decimal('0.00'))
-    logger.info("﹌" * 30)
+    
     logger.info(f"PIT-38 Calculations for tax year {config.tax_year}:")
     
     field_descriptions = {
-        "year": "✔️ Tax year 📅",
-        "field34_income": "✔️ Field 34: Total income from crypto sales 💰",
-        "field35_costs_current_year": "✔️ Field 35: Costs from current year 💸",
-        "field36_costs_previous_years": "✔️ Field 36: Unused costs from previous years 📉",
-        "field37_tax_base": "✔️ Field 37: Taxable income (if positive) 🧾",
-        "field38_loss": "✔️ Field 38: Loss (if negative) 📉",
-        "field39_tax": "✔️ Field 39: Tax due (19% of field 37) 💳"
+        "year": "Tax year",
+        "field34_income": "Field 34: Total income from crypto sales",
+        "field35_costs_current_year": "Field 35: Costs from current year",
+        "field36_costs_previous_years": "Field 36: Unused costs from previous years ",
+        "field37_tax_base": "Field 37: Taxable income (if positive)",
+        "field38_loss": "Field 38: Loss (if negative)",
+        "field39_tax": "Field 39: Tax due (19% of field 37)"
     }
+    
+    # Log details and also prepare data for user display
+    table = Table(title=f"PIT-38 Calculations for Tax Year {config.tax_year}")
+    table.add_column("Description", justify="left")
+    table.add_column("Value", justify="right")
     
     for field_name, value in asdict(pit38).items():
         description = field_descriptions.get(field_name, field_name)
         logger.info(f"{description}: {value}")
+        table.add_row(description, str(value))
+
     
-    logger.info("﹌" * 30)
+    # Display the calculations in a nicely formatted table using Rich
+    console.print(table, emoji=True)
     
     return pit38

@@ -71,6 +71,7 @@ def create_tax_transactions(
     
     return tax_transactions
 
+
 @dataclass
 class Pit38Data:
     """
@@ -104,6 +105,7 @@ class Pit38Data:
             self.field37_tax_base = Decimal('0.00')
             self.field38_loss = abs(result).quantize(Decimal('0.01'))
             self.field39_tax = Decimal('0.00')
+
 
 def calculate_pit_38(
     tax_transactions: list[TransactionForTax], 
@@ -141,9 +143,11 @@ def calculate_pit_38(
         if tx.transaction.type.upper() == "BUY"
     )
     
-    return Pit38Data(
+    pit38 = Pit38Data(
         year=for_year,
         field34_income=income,
         field35_costs_current_year=current_year_costs,
         field36_costs_previous_years=previous_year_cost_field36
     )
+    
+    return pit38

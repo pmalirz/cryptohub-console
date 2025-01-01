@@ -6,7 +6,11 @@ from config import Configuration
 from kraken import KrakenAPI
 from transaction import Transaction
 
+from rich.console import Console
+from rich.panel import Panel
+
 logger = logging.getLogger(__name__)
+console = Console()
 
 
 def _create_dataframe(trades: List[Transaction]) -> pd.DataFrame:
@@ -84,8 +88,11 @@ def save_trades_to_excel(trades: List[Transaction], filename: str = "trades.xlsx
     
     writer.close()
     
-    colored_filename = f"\033[94m{filename}\033[0m"
-    logger.info(f"Saved trades {colored_filename}. You can open the file to make your own analysis and calculations.")
+    logger.info(f"Saved trades to {filename}. You can open the file to make your own analysis and calculations.")
+    
+    # Use Rich Panel to notify the user with a friendly message
+    console.print(Panel(f"Saved trades to [blue]{filename}[/blue].\nOpen the file to review your analysis!", 
+                          title="Excel File Saved", border_style="green"))
 
 
 def download_and_save_trades(config: Configuration):
