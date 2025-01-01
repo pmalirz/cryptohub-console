@@ -1,70 +1,30 @@
-import requests
-import time
-import hashlib
-import hmac
-import base64
-import urllib.parse  
 import logging
 import datetime
 from decimal import Decimal
-
+from kraken.spot import User, Market
 from .transaction import Pair, Transaction
 
 logger = logging.getLogger(__name__)
 
 class KrakenAPI:
-    BASE_URL = "https://api.kraken.com"
-    
     def __init__(self, key: str, secret: str, platform_name: str = "Kraken", *, filter_quote_assets: set[str] | None = None):
-        self.key = key
-        self.secret = secret
-        self.last_nonce = 0  # track last nonce
+        # Use the User class from the new sdk for private endpoints.
+        self.client = User(key, secret)
         self.platform_name = platform_name
-        self.filter_quote_assets = filter_quote_assets  # New attribute for filtering
-
-    def _get_nonce(self):
-        nonce = int(time.time() * 1000)
-        # Ensure nonce is strictly increasing
-        if nonce <= self.last_nonce:
-            nonce = self.last_nonce + 1
-        self.last_nonce = nonce
-        return str(nonce)
-
-    def _sign_request(self, uri_path, data):
-        nonce = self._get_nonce()
-        data["nonce"] = nonce
-        # Encode parameters
-        postdata = urllib.parse.urlencode(data)
-        # Message: nonce + postdata
-        message = nonce + postdata
-        sha256_hash = hashlib.sha256(message.encode()).digest()
-        # Prepend URI path
-        hmac_data = uri_path.encode() + sha256_hash
-        signature = hmac.new(base64.b64decode(self.secret), hmac_data, hashlib.sha512)
-        return base64.b64encode(signature.digest()).decode()
+        self.filter_quote_assets = filter_quote_assets 
 
     def get_trades_history(self, offset=0):
-        uri_path = "/0/private/TradesHistory"
-        url = self.BASE_URL + uri_path
-        data = {"ofs": offset}
-        headers = {
-            "API-Key": self.key,
-            "API-Sign": self._sign_request(uri_path, data),
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
-        logger.debug(f"Requesting trades history with offset {offset}")
-        response = requests.post(url, headers=headers, data=data)
-        response.raise_for_status()
-        result = response.json()
-        if result.get("error"):
-            logger.error(f"Kraken API error: {result['error']}")
+        # Use the trades_history method with an offset.
+        response = self.client.get_trades_history(ofs=offset)
+        if response.get("error"):
+            logger.error(f"Kraken API error: {response['error']}")
         else:
             logger.debug(f"Successfully retrieved trades history with offset {offset}")
-        return result
-    
+        return response
+
     def transactions_from_kraken_data(self, data):
         """
-        Converts Kraken trade data to Transaction object using Decimal for monetary values.
+        Converts Kraken trade data to a Transaction object.
         Uses pair_to_quote mapping to get base and quote currencies.
         """
         pair = data["pair"]
@@ -91,37 +51,28 @@ class KrakenAPI:
             vol=Decimal(str(data["vol"])),
             ordertype=data["ordertype"],
             cost=Decimal(str(data["cost"])),
-            fee=Decimal(str(data["fee"])),            
+            fee=Decimal(str(data["fee"])),
             postxid=data["postxid"],
             misc=data["misc"] or "",
             leverage=Decimal(str(data["leverage"])),
             margin=Decimal(str(data["margin"])),
-            type=data["type"]            
-        )        
-        
+            type=data["type"]
+        )
+
     def download_asset_pairs(self):
         """
-        Downloads asset pairs from Kraken and creates a mapping of pair ID to Pair object.
-        Returns a dictionary where:
-        - key: pair ID (e.g., 'SOLEUR')
-        - value: Pair object containing pair_id, base_currency and quote_currency
+        Downloads asset pairs from Kraken using the Market endpoint from the new SDK.
+        Applies filtering if filter_quote_assets is provided.
         """
-        uri_path = "/0/public/AssetPairs"
-        url = self.BASE_URL + uri_path
-        response = requests.get(url)
-        response.raise_for_status()
-        result = response.json()
-        
-        if result.get("error"):
-            logger.error(f"Kraken API error: {result['error']}")
+        market_client = Market()
+        asset_pairs = market_client.get_asset_pairs()
+        if "error" in asset_pairs:
+            logger.error(f"Kraken API error: {asset_pairs['error']}")
             return {}
-        
+
         pair_mapping = {}
-        pairs_data = result.get("result", {})
-        
-        for pair_id, pair_info in pairs_data.items():
+        for pair_id, pair_info in asset_pairs.items():
             if "wsname" in pair_info:
-                # Split wsname (e.g., "SOL/EUR" -> ["SOL", "EUR"])
                 base, quote = pair_info["wsname"].split("/")
                 # Apply filtering if FILTER_QUOTE_ASSETS is provided.
                 if self.filter_quote_assets is not None and quote not in self.filter_quote_assets:
@@ -131,7 +82,6 @@ class KrakenAPI:
                     base_currency=base,
                     quote_currency=quote
                 )
-        
         logger.debug(f"Mapped {len(pair_mapping)} asset pairs")
         return pair_mapping
 
@@ -143,7 +93,7 @@ class KrakenAPI:
         transactions = []
         offset = 0
 
-        # Initialize pair_to_quote mapping
+        # Initialize mapping of asset pairs.
         self.pair_to_quote = self.download_asset_pairs()
 
         from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
@@ -156,24 +106,23 @@ class KrakenAPI:
             transient=True
         ) as progress:
             task = progress.add_task(description="Downloading Kraken 🦑...", total=None)
-            
+
             while True:
                 logger.debug(f"Downloading trades starting at offset {offset}")
                 response = self.get_trades_history(offset)
-                trades = response.get("result", {}).get("trades", {})
+                trades = response.get("trades", {})
                 if not trades:
                     logger.debug("No more trades found.")
                     break
 
-                # Convert each trade to a Transaction object
                 for trade_id, trade_data in trades.items():
                     transaction = self.transactions_from_kraken_data(trade_data)
                     transactions.append(transaction)
-                
+
                 count = len(trades)
                 progress.advance(task, count)
                 offset += count
                 logger.debug(f"Downloaded and converted {count} trades, total: {len(transactions)}")
-            
+
         logger.info(f"Total transactions processed: {len(transactions)}")
         return transactions
