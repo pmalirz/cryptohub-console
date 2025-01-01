@@ -1,5 +1,4 @@
 import os
-import sys
 from typing import Dict
 from dataclasses import dataclass
 import argparse
