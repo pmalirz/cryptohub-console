@@ -1,5 +1,6 @@
 import logging
 from typing import List
+from datetime import datetime
 
 import pandas as pd
 from .config import Configuration
@@ -45,7 +46,13 @@ def _create_dataframe(trades: List[Transaction]) -> pd.DataFrame:
 def save_trades_to_excel(trades: List[Transaction], filename: str = "trades.xlsx"):
     """
     Save trades to Excel with color formatting.
+    Appends ISO date & time to the filename.
     """
+    # Append ISO date and time (using underscores instead of colons) to the filename.
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    base, ext = filename.rsplit(".", 1)
+    filename = f"{base}_{timestamp}.{ext}"
+
     df = _create_dataframe(trades)
     
     # Create Excel writer
@@ -102,8 +109,16 @@ def download_and_save_trades(config: Configuration):
         kraken = KrakenAPI(account.api_key, account.api_secret, account.name)
         account_trades = kraken.download_all_trades()
         trades.extend(account_trades)
-        logger.info(f"Trades downloaded successfully for account: {account.name if account.name else 'Unnamed Account ' + account_id}")
-   
+        logger.info(f"Trades downloaded successfully for Kraken account: {account.name if account.name else 'Unnamed Account ' + account_id}")
+
+    # Download trades from all configured Binance accounts.
+    from .binance import BinanceAPI  # Import BinanceAPI here.
+    for account_id, account in config.binance_accounts.items():
+        binance = BinanceAPI(account.api_key, account.api_secret, account.name)
+        account_trades = binance.download_all_trades()
+        trades.extend(account_trades)
+        logger.info(f"Trades downloaded successfully for Binance account: {account.name if account.name else 'Unnamed Account ' + account_id}")
+
     # Save trades model to file.
     save_trades_to_excel(trades)
     

@@ -31,17 +31,15 @@ def main():
     # Load configuration
     config = load_config()
     
-    if not config.hasAnyKrakenAccounts():
+    if not config.hasAnyAccounts():
         # Log errors for diagnostics
-        logger.error("API credentials for Kraken account missing.")
-        logger.error("Please provide them in .env file or via CLI arguments:")
-        logger.error("  cryptohub --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret")
+        logger.error("API credentials for trading platforms missing.")
+        logger.error("Please check /? help for more information on how to configure your accounts.")
         
         # Show an error panel using Rich for user-friendly output
         error_message = (
-            "API credentials for Kraken account missing.\n\n"
-            "Please provide them in your .env file or via CLI arguments:\n"
-            "  cryptohub --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret"
+            "API credentials for trading platforms are missing.\n\n"
+            "Please refer to /? help for details on setting up your credentials."
         )
         console.print(Panel(error_message, title="Configuration Error", border_style="red"))
         return

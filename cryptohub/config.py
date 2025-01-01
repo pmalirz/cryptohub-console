@@ -14,19 +14,27 @@ class KrakenAccount:
     api_key: str
     api_secret: str
 
+# New dataclass for Binance accounts.
+@dataclass
+class BinanceAccount:
+    name: str
+    api_key: str
+    api_secret: str
+
 @dataclass
 class Configuration:
     kraken_accounts: Dict[str, KrakenAccount]
+    binance_accounts: Dict[str, BinanceAccount]
     settlement_day: int
     tax_year: int
     previous_year_cost_field36: Decimal
     
-    def hasAnyKrakenAccounts(self) -> bool:
+    def hasAnyAccounts(self) -> bool:
         """
-        Check if there are any Kraken accounts configured.
+        Check if there are any accounts configured (Kraken or Binance).
         Returns True if at least one account exists, False otherwise.
         """
-        return len(self.kraken_accounts) > 0
+        return bool(self.kraken_accounts) or bool(self.binance_accounts)
 
 def load_config() -> Configuration:
     """
@@ -37,15 +45,19 @@ def load_config() -> Configuration:
     """
     # Load environment variables first
     load_dotenv()
-    
+
     # Create parser that matches .env variable names
     parser = argparse.ArgumentParser(description='CryptoTaxPL configuration')
-    
-    # Add arguments for all possible env variables
+
+    # Add arguments for all possible env variables for Kraken accounts
     for key in os.environ:
         if key.startswith('KRAKEN_'):
             parser.add_argument(f'--{key}', type=str, help=f'Override {key} from .env')
-    
+    # Add arguments for all possible env variables for Binance accounts
+    for key in os.environ:
+        if key.startswith('BINANCE_'):
+            parser.add_argument(f'--{key}', type=str, help=f'Override {key} from .env')
+
     # Add standard configuration parameters
     parser.add_argument('--SETTLEMENT_DAY', type=int, 
                        help='Settlement day for tax calculation (default: -1)')
@@ -53,18 +65,19 @@ def load_config() -> Configuration:
                        help='Tax year for calculations (required)')
     parser.add_argument('--PREVIOUS_YEAR_COST_FIELD36', type=str, 
                        help='Previous year cost from field 36 (default: 0.00)')
-    
+
     args = parser.parse_args()
     args_dict = {k: v for k, v in vars(args).items() if v is not None}
-    
+
     # Start with env vars and override with command line args
     config = {
         "krakenAccounts": {},
+        "binanceAccounts": {},  # Added Binance accounts container.
         "settlementDay": int(os.getenv('SETTLEMENT_DAY', '-1')),
         "taxYear": int(os.getenv('TAX_YEAR', '0')),
         "previousYearCostField36": Decimal(os.getenv('PREVIOUS_YEAR_COST_FIELD36', '0.00'))
     }
-    
+
     # Override with command line arguments if provided
     if args_dict.get('SETTLEMENT_DAY') is not None:
         config['settlementDay'] = args_dict['SETTLEMENT_DAY']
@@ -73,11 +86,11 @@ def load_config() -> Configuration:
     if args_dict.get('PREVIOUS_YEAR_COST_FIELD36') is not None:
         config['previousYearCostField36'] = Decimal(args_dict['PREVIOUS_YEAR_COST_FIELD36'])
         
-    # Track unique names and API keys
+    # Track unique names and API keys for Kraken.
     used_names = set()
     used_api_keys = set()
     
-    # Load Kraken accounts
+    # Load Kraken accounts.
     i = 1
     while True:
         name = os.getenv(f'KRAKEN_{i}')
@@ -110,14 +123,46 @@ def load_config() -> Configuration:
             'apiSecret': args_dict.get(f'KRAKEN_API_SECRET_{i}', secret)
         }
         i += 1
+
+    # Track unique names and API keys for Binance.
+    used_binance_names = set()
+    used_binance_keys = set()
     
+    # Load Binance accounts.
+    i = 1
+    while True:
+        name = os.getenv(f'BINANCE_{i}')
+        key = os.getenv(f'BINANCE_API_KEY_{i}')
+        secret = os.getenv(f'BINANCE_API_SECRET_{i}')
+        
+        if not key or not secret:
+            break
+        
+        actual_name = name or f'Binance{i}'
+        actual_key = args_dict.get(f'BINANCE_API_KEY_{i}', key)
+        
+        if actual_name in used_binance_names:
+            raise ValueError(f"Duplicate Binance account name found: {actual_name}")
+        if actual_key in used_binance_keys:
+            raise ValueError("Duplicate Binance API key found")
+        
+        used_binance_names.add(actual_name)
+        used_binance_keys.add(actual_key)
+        
+        config['binanceAccounts'][str(i)] = {
+            'name': actual_name,
+            'apiKey': actual_key,
+            'apiSecret': args_dict.get(f'BINANCE_API_SECRET_{i}', secret)
+        }
+        i += 1
+
     # Validate configuration
     if not config['krakenAccounts']:
         raise ValueError("No Kraken accounts configured")
     if not config['taxYear']:
         raise ValueError("Tax year must be provided in .env or via --TAX_YEAR")
         
-    # Convert dict config to dataclass
+    # Convert dict config to dataclass for Kraken.
     kraken_accounts = {
         account_id: KrakenAccount(
             name=account['name'],
@@ -126,9 +171,19 @@ def load_config() -> Configuration:
         )
         for account_id, account in config['krakenAccounts'].items()
     }
+    # Convert dict config to dataclass for Binance.
+    binance_accounts = {
+        account_id: BinanceAccount(
+            name=account['name'],
+            api_key=account['apiKey'],
+            api_secret=account['apiSecret']
+        )
+        for account_id, account in config['binanceAccounts'].items()
+    }
     
     return Configuration(
         kraken_accounts=kraken_accounts,
+        binance_accounts=binance_accounts,  # Added Binance accounts.
         settlement_day=config['settlementDay'],
         tax_year=config['taxYear'],
         previous_year_cost_field36=config['previousYearCostField36']

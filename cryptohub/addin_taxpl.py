@@ -2,6 +2,7 @@ import logging
 from decimal import Decimal
 from dataclasses import asdict
 from typing import List
+from datetime import datetime
 
 import pandas as pd
 
@@ -51,7 +52,13 @@ def _create_dataframe(trades: List[TransactionForTax]) -> pd.DataFrame:
 def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "trades_taxpl.xlsx"):
     """
     Save trades to Excel with color formatting.
+    Appends ISO date & time to the filename.
     """
+    # Append ISO date and time (using underscores instead of colons) to the filename.
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    base, ext = filename.rsplit(".", 1)
+    filename = f"{base}_{timestamp}.{ext}"
+
     df = _create_dataframe(trades)
     
     # Create Excel writer

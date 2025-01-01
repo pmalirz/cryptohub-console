@@ -138,25 +138,38 @@ class KrakenAPI:
         """
         transactions = []
         offset = 0
-        
-        # Initialize pair_to_quote mapping
-        self.pair_to_quote = self.download_asset_pairs()        
 
-        while True:
-            logger.debug(f"Downloading trades starting at offset {offset}")
-            response = self.get_trades_history(offset)
-            trades = response.get("result", {}).get("trades", {})
-            if not trades:
-                logger.debug("No more trades found.")
-                break
+        # Initialize pair_to_quote mapping
+        self.pair_to_quote = self.download_asset_pairs()
+
+        from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            TimeElapsedColumn(),
+            refresh_per_second=10,
+            transient=True
+        ) as progress:
+            task = progress.add_task(description="Downloading Kraken 🦑...", total=None)
+            
+            while True:
+                logger.debug(f"Downloading trades starting at offset {offset}")
+                response = self.get_trades_history(offset)
+                trades = response.get("result", {}).get("trades", {})
+                if not trades:
+                    logger.debug("No more trades found.")
+                    break
+
+                # Convert each trade to a Transaction object
+                for trade_id, trade_data in trades.items():
+                    transaction = self.transactions_from_kraken_data(trade_data)
+                    transactions.append(transaction)
                 
-            # Convert each trade to Transaction object
-            for trade_id, trade_data in trades.items():
-                transaction = self.transactions_from_kraken_data(trade_data)
-                transactions.append(transaction)
-                
-            offset += len(trades)
-            logger.debug(f"Downloaded and converted {len(trades)} trades, total: {len(transactions)}")
-        
+                count = len(trades)
+                progress.advance(task, count)
+                offset += count
+                logger.debug(f"Downloaded and converted {count} trades, total: {len(transactions)}")
+            
         logger.info(f"Total transactions processed: {len(transactions)}")
         return transactions
