@@ -1,3 +1,5 @@
+from dataclasses import asdict
+from decimal import Decimal
 from config import load_config
 from banner import display_banner
 from kraken import KrakenAPI
@@ -6,7 +8,7 @@ from nbp import NBPClient
 import logging
 from colorama import init, Fore
 import set_logging
-from tax_processor import create_tax_transactions
+from tax_processor import calculate_pit_38, create_tax_transactions
 
 # Initialize colorama
 init(autoreset=True)
@@ -40,6 +42,24 @@ def main():
     # Save tax transactions to file
     save_trades_to_excel(tax_transactions)
     
+    pit38 = calculate_pit_38(tax_transactions, 2024, Decimal('0.00'))
+    logger.info("﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌")
+    logger.info("PIT-38 Calculations:")
+    field_descriptions = {
+        "year": "Tax year 📅",
+        "field34_income": "✔️ Field 34: Total income from crypto sales 💰",
+        "field35_costs_current_year": "✔️ Field 35: Costs from current year 💸",
+        "field36_costs_previous_years": "✔️ Field 36: Unused costs from previous years 📉",
+        "field37_tax_base": "✔️ Field 37: Taxable income (if positive) 🧾",
+        "field38_loss": "✔️ Field 38: Loss (if negative) 📉",
+        "field39_tax": "✔️ Field 39: Tax due (19% of field 37) 💳"
+    }
+    for field_name, value in asdict(pit38).items():
+        description = field_descriptions.get(field_name, field_name)
+        logger.info(f"{description}: {value}")        
+    logger.info("﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌﹌")    
+    
+    
 if __name__ == "__main__":
     main()
-    
+

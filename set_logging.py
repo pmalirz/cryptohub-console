@@ -38,7 +38,7 @@ def setup_logging():
     file_handler = logging.FileHandler(logs_dir / log_filename, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_formatter = EmojiFormatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(emoji)s%(message)s',
+        '%(asctime)s - %(name)-8.8s - %(emoji)s%(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     file_handler.setFormatter(file_formatter)
@@ -50,7 +50,7 @@ def setup_logging():
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_formatter = colorlog.ColoredFormatter(
-        "%(log_color)s%(asctime)s - %(name)s - %(levelname)s%(reset)s - %(emoji)s%(message)s",
+        "%(log_color)s%(asctime)s - %(name)-8.8s -  %(emoji)s%(levelname)s%(reset)s -%(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         log_colors={
             'DEBUG': 'cyan',
