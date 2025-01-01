@@ -145,9 +145,9 @@ def calculate_pit_38(
     
     pit38 = Pit38Data(
         year=for_year,
-        field34_income=income,
-        field35_costs_current_year=current_year_costs,
-        field36_costs_previous_years=previous_year_cost_field36
+        field34_income=Decimal(income),
+        field35_costs_current_year=Decimal(current_year_costs),
+        field36_costs_previous_years=Decimal(previous_year_cost_field36)
     )
     
     return pit38

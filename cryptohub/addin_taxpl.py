@@ -133,25 +133,51 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl
 def load_trades_from_excel(filename: str = "trades.xlsx") -> list[Transaction]:
     """Load trades from Excel file and convert to Transaction objects."""
     try:
-        df = pd.read_excel(filename)
+        # Read Excel file with specific data types
+        df = pd.read_excel(
+            filename,
+            dtype={
+                'Platform': str,
+                'Trade ID': str,
+                'Trading Pair': str,
+                'Base Currency': str,
+                'Quote Currency': str,
+                'Price': str,  # Read numbers as strings to preserve precision
+                'Volume': str,
+                'Total Cost': str,
+                'Fee': str,
+                'Type': str
+            }
+        )
         logger.info(f"Successfully loaded {len(df)} trades from {filename}")
         
         transactions = []
         for _, row in df.iterrows():
-            transaction = Transaction(
-                platform=row['Platform'],
-                trade_id=str(row['Trade ID']),
-                trading_pair=str(row['Trading Pair']),
-                base_currency=str(row['Base Currency']),
-                quote_currency=str(row['Quote Currency']),
-                price=Decimal(str(row['Price'])),
-                timestamp=datetime.strptime(row['Date & Time'], '%Y-%m-%d %H:%M:%S'),
-                volume=Decimal(str(row['Volume'])),
-                total_cost=Decimal(str(row['Total Cost'])),
-                fee=Decimal(str(row['Fee'])),
-                trade_type=str(row['Type'])
-            )
-            transactions.append(transaction)
+            # Convert numeric values to Decimal
+            try:
+                price = Decimal(row['Price'])
+                volume = Decimal(row['Volume'])
+                total_cost = Decimal(row['Total Cost'])
+                fee = Decimal(row['Fee'])
+                
+                transaction = Transaction(
+                    platform=row['Platform'],
+                    trade_id=str(row['Trade ID']),
+                    trading_pair=str(row['Trading Pair']),
+                    base_currency=str(row['Base Currency']),
+                    quote_currency=str(row['Quote Currency']),
+                    price=price,
+                    timestamp=datetime.strptime(row['Date & Time'], '%Y-%m-%d %H:%M:%S'),
+                    volume=volume,
+                    total_cost=total_cost,
+                    fee=fee,
+                    trade_type=str(row['Type'])
+                )
+                transactions.append(transaction)
+            except (ValueError, TypeError, KeyError) as e:
+                logger.error(f"Error processing row: {row}")
+                logger.error(f"Error details: {str(e)}")
+                raise
             
         return transactions
         
