@@ -13,8 +13,6 @@ class KrakenAccount:
     name: str
     api_key: str
     api_secret: str
-
-# New dataclass for Binance accounts.
 @dataclass
 class BinanceAccount:
     name: str
@@ -28,6 +26,7 @@ class Configuration:
     settlement_day: int
     tax_year: int
     previous_year_cost_field36: Decimal
+    filter_quote_assets: set[str] | None 
     
     def hasAnyAccounts(self) -> bool:
         """
@@ -66,6 +65,10 @@ def load_config() -> Configuration:
     parser.add_argument('--PREVIOUS_YEAR_COST_FIELD36', type=str, 
                        help='Previous year cost from field 36 (default: 0.00)')
 
+    # New argument for filtering quote assets.
+    parser.add_argument('--FILTER_QUOTE_ASSETS', type=str,
+                        help='Comma separated list of quote assets to filter (if empty, no filtering is applied)')
+
     args = parser.parse_args()
     args_dict = {k: v for k, v in vars(args).items() if v is not None}
 
@@ -75,7 +78,8 @@ def load_config() -> Configuration:
         "binanceAccounts": {},  # Added Binance accounts container.
         "settlementDay": int(os.getenv('SETTLEMENT_DAY', '-1')),
         "taxYear": int(os.getenv('TAX_YEAR', '0')),
-        "previousYearCostField36": Decimal(os.getenv('PREVIOUS_YEAR_COST_FIELD36', '0.00'))
+        "previousYearCostField36": Decimal(os.getenv('PREVIOUS_YEAR_COST_FIELD36', '0.00')),
+        "filterQuoteAssets": os.getenv('FILTER_QUOTE_ASSETS', '')
     }
 
     # Override with command line arguments if provided
@@ -85,6 +89,8 @@ def load_config() -> Configuration:
         config['taxYear'] = args_dict['TAX_YEAR']
     if args_dict.get('PREVIOUS_YEAR_COST_FIELD36') is not None:
         config['previousYearCostField36'] = Decimal(args_dict['PREVIOUS_YEAR_COST_FIELD36'])
+    if args_dict.get('FILTER_QUOTE_ASSETS') is not None:
+        config['filterQuoteAssets'] = args_dict['FILTER_QUOTE_ASSETS']
         
     # Track unique names and API keys for Kraken.
     used_names = set()
@@ -181,10 +187,18 @@ def load_config() -> Configuration:
         for account_id, account in config['binanceAccounts'].items()
     }
     
+    # Process FILTER_QUOTE_ASSETS value: if empty string then set to None else create a set.
+    filter_assets = config['filterQuoteAssets'].strip()
+    if filter_assets:
+        filter_assets = {item.strip() for item in filter_assets.split(',')}
+    else:
+        filter_assets = None
+
     return Configuration(
         kraken_accounts=kraken_accounts,
         binance_accounts=binance_accounts,  # Added Binance accounts.
         settlement_day=config['settlementDay'],
         tax_year=config['taxYear'],
-        previous_year_cost_field36=config['previousYearCostField36']
+        previous_year_cost_field36=config['previousYearCostField36'],
+        filter_quote_assets=filter_assets
     )

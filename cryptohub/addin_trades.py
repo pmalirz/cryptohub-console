@@ -104,17 +104,18 @@ def save_trades_to_excel(trades: List[Transaction], filename: str = "trades.xlsx
 
 def download_and_save_trades(config: Configuration):
     trades = []
-    # Download trades from all configured Kraken accounts.
+    # Download trades from Kraken accounts.
     for account_id, account in config.kraken_accounts.items():
-        kraken = KrakenAPI(account.api_key, account.api_secret, account.name)
+        # Pass filter_quote_assets from configuration.
+        kraken = KrakenAPI(account.api_key, account.api_secret, account.name, filter_quote_assets=config.filter_quote_assets)
         account_trades = kraken.download_all_trades()
         trades.extend(account_trades)
         logger.info(f"Trades downloaded successfully for Kraken account: {account.name if account.name else 'Unnamed Account ' + account_id}")
 
-    # Download trades from all configured Binance accounts.
+    # Download trades from Binance accounts.
     from .binance import BinanceAPI  # Import BinanceAPI here.
     for account_id, account in config.binance_accounts.items():
-        binance = BinanceAPI(account.api_key, account.api_secret, account.name)
+        binance = BinanceAPI(account.api_key, account.api_secret, account.name, filter_quote_assets=config.filter_quote_assets)
         account_trades = binance.download_all_trades()
         trades.extend(account_trades)
         logger.info(f"Trades downloaded successfully for Binance account: {account.name if account.name else 'Unnamed Account ' + account_id}")

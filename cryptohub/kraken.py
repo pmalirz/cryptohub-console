@@ -15,11 +15,12 @@ logger = logging.getLogger(__name__)
 class KrakenAPI:
     BASE_URL = "https://api.kraken.com"
     
-    def __init__(self, key: str, secret: str, platform_name: str = "Kraken"):
+    def __init__(self, key: str, secret: str, platform_name: str = "Kraken", *, filter_quote_assets: set[str] | None = None):
         self.key = key
         self.secret = secret
         self.last_nonce = 0  # track last nonce
         self.platform_name = platform_name
+        self.filter_quote_assets = filter_quote_assets  # New attribute for filtering
 
     def _get_nonce(self):
         nonce = int(time.time() * 1000)
@@ -122,6 +123,9 @@ class KrakenAPI:
             if "wsname" in pair_info:
                 # Split wsname (e.g., "SOL/EUR" -> ["SOL", "EUR"])
                 base, quote = pair_info["wsname"].split("/")
+                # Apply filtering if FILTER_QUOTE_ASSETS is provided.
+                if self.filter_quote_assets is not None and quote not in self.filter_quote_assets:
+                    continue
                 pair_mapping[pair_id] = Pair(
                     pair_id=pair_id,
                     base_currency=base,

@@ -12,12 +12,13 @@ from .transaction import Pair, Transaction
 logger = logging.getLogger(__name__)
 
 class BinanceAPI:
-    def __init__(self, key: str, secret: str, platform_name: str = "Binance"):
+    def __init__(self, key: str, secret: str, platform_name: str = "Binance", *, filter_quote_assets: set[str] | None = None):
         """
         Initialize BinanceAPI with API credentials.
         :param key: Binance API key.
         :param secret: Binance API secret.
         :param platform_name: Platform name (default "Binance").
+        :param filter_quote_assets: Set of quote assets to filter; if None, no filtering is applied.
         """
         self.client = Client(key, secret)
         # Synchronize local time with Binance server time.
@@ -26,22 +27,25 @@ class BinanceAPI:
         # Subtract an extra 1000ms to avoid the -1021 error.
         self.client._timestamp_offset = server_time - local_time - 1000
         self.platform_name = platform_name
+        self.filter_quote_assets = filter_quote_assets
 
     def download_asset_pairs(self):
         """
         Downloads asset pairs from Binance using the exchangeInfo endpoint.
         Returns a dictionary mapping symbol to a Pair object.
-        Only includes pairs containing EUR or USD.
+        Applies filtering by quote asset if self.filter_quote_assets is provided.
         """
         info = self.client.get_exchange_info()
         pair_mapping = {}
-        fiat_currencies = {"EUR", "USD"}
         
         for symbol_info in info.get("symbols", []):
-            # Skip if not trading or if neither EUR nor USD is involved
-            if (symbol_info["status"] != "TRADING" or
-                symbol_info["quoteAsset"] not in fiat_currencies):
+            # Skip if not trading
+            if symbol_info["status"] != "TRADING":
                 continue
+            # Apply filtering if filter_quote_assets is provided.
+            if self.filter_quote_assets is not None:
+                if symbol_info["quoteAsset"] not in self.filter_quote_assets:
+                    continue
                 
             symbol = symbol_info["symbol"]
             pair_mapping[symbol] = Pair(
@@ -50,7 +54,7 @@ class BinanceAPI:
                 quote_currency=symbol_info["quoteAsset"]
             )
         
-        logger.debug(f"Mapped {len(pair_mapping)} *EUR, *USD pairs from Binance.")
+        logger.debug(f"Mapped {len(pair_mapping)} pairs from Binance.")
         return pair_mapping
 
     def transactions_from_order(self, order, pair_mapping):
@@ -175,7 +179,7 @@ class BinanceAPI:
         ) as progress:
             task = progress.add_task(description="Downloading Binance trades ✨...", total=total_pairs)
             
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="BinanceTradeDownloader") as executor:
                 futures = {executor.submit(process_symbol, symbol): symbol 
                           for symbol in pair_mapping.keys()}
                 
