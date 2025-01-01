@@ -61,7 +61,20 @@ def _create_dataframe(trades: list[TransactionForTax]) -> pd.DataFrame:
     
     return df
 
-def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl.xlsx"):
+def _adjust_column_widths(worksheet, df):
+    """Adjust column widths based on content."""
+    for idx, col in enumerate(df.columns):
+        # Get maximum length of column content
+        max_length = max(
+            df[col].astype(str).apply(len).max(),  # max length of values
+            len(str(col))  # length of column header
+        )
+        # Add some padding
+        adjusted_width = max_length + 4
+        # Set column width with minimum and maximum constraints
+        worksheet.set_column(idx, idx, min(max(adjusted_width, 8), 50))
+
+def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl.xlsx", pit38: object = None, tax_year: int = None):
     """
     Save trades to Excel with color formatting.
     Appends ISO date & time to the filename.
@@ -131,6 +144,57 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl
         ) + 1
         worksheet.set_column(idx, idx, max_len)
     
+    # Add tax summary if pit38 and tax_year are provided
+    if pit38 is not None:
+        _add_tax_summary(writer, pit38, pit38.year)  # Use pit38.year instead of tax_year parameter
+    
+    # Define formats with Polish locale
+    buy_format = workbook.add_format({
+        'bg_color': '#C6EFCE',  # Light green
+        'num_format': '#,##0.00'  # Basic number format
+    })
+    
+    sell_format = workbook.add_format({
+        'bg_color': '#FFC7CE',  # Light red
+        'num_format': '#,##0.00'  # Basic number format
+    })
+    
+    # Create specific formats for different types of numbers
+    price_volume_format = workbook.add_format({
+        'num_format': '#,##0.00000000',  # 8 decimal places for crypto
+        'align': 'right'
+    })
+    
+    cost_format = workbook.add_format({
+        'num_format': '#,##0.00',  # 2 decimal places for fiat
+        'align': 'right'
+    })
+    
+    pln_format = workbook.add_format({
+        'num_format': '#,##0.00 "PLN"',  # PLN currency format
+        'align': 'right'
+    })
+    
+    # Map columns to their specific formats
+    column_formats = {
+        'Price': price_volume_format,
+        'Volume': price_volume_format,
+        'Total Cost': cost_format,
+        'Fee': price_volume_format,
+        'Exchange Rate (Quote Currency/PLN)': cost_format,
+        'Total Cost (PLN)': pln_format,
+        'Total Cost (PLN) by Formula': pln_format
+    }
+    
+    # Apply formats to specific columns
+    for col_name, format_obj in column_formats.items():
+        if col_name in df.columns:
+            col_idx = df.columns.get_loc(col_name)
+            worksheet.set_column(col_idx, col_idx, None, format_obj)
+    
+    # Adjust column widths after all formatting is done
+    _adjust_column_widths(worksheet, df)
+    
     writer.close()
     
     colored_filename = f"[blue]{filename}[/blue]"
@@ -138,6 +202,79 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl
     
     # User-friendly message using Rich
     console.print(f"💾 Saved trades together with tax calculations to {colored_filename}.")
+
+def _add_tax_summary(writer: pd.ExcelWriter, pit38: object, tax_year: int) -> None:
+    """Add tax calculation summary to a new worksheet."""
+    # Create a summary worksheet
+    worksheet = writer.book.add_worksheet('Tax Summary')
+    
+    # Define formats
+    header_format = writer.book.add_format({
+        'bold': True,
+        'bg_color': '#0066cc',
+        'font_color': 'white',
+        'align': 'center',
+        'border': 1
+    })
+    
+    cell_format = writer.book.add_format({
+        'align': 'left',
+        'border': 1
+    })
+    
+    number_format = writer.book.add_format({
+        'num_format': '#,##0.00 "PLN"',
+        'align': 'right',
+        'border': 1
+    })
+    
+    tax_format = writer.book.add_format({
+        'num_format': '#,##0.00 "PLN"',
+        'align': 'right',
+        'border': 1,
+        'bold': True,
+        'bg_color': '#FFC7CE'  # Light red for tax amount
+    })
+    
+    # Add title
+    worksheet.merge_range('A1:B1', f'PIT-38 Tax Summary for {tax_year}', header_format)
+    
+    # Set column widths
+    worksheet.set_column('A:A', 50)  # Description column
+    worksheet.set_column('B:B', 20)  # Value column
+    
+    # Headers for the data
+    worksheet.write('A2', 'Description', header_format)
+    worksheet.write('B2', 'Value', header_format)
+    
+    # Tax calculation data
+    tax_data = [
+        ("Tax year", tax_year, cell_format),
+        ("Field 34: Total income from crypto sales (PLN)", pit38.field34_income, number_format),
+        ("Field 35: Costs from current year (PLN)", pit38.field35_costs_current_year, number_format),
+        ("Field 36: Unused costs from previous years (PLN)", pit38.field36_costs_previous_years, number_format),
+        ("Field 37: Taxable income (PLN)", pit38.field37_tax_base, number_format),
+        ("Field 38: Loss (PLN)", pit38.field38_loss, number_format),
+        ("Field 39: Tax due - 19% (PLN)", pit38.field39_tax, tax_format)
+    ]
+    
+    # Write data
+    for row, (desc, value, fmt) in enumerate(tax_data, start=2):
+        worksheet.write(row, 0, desc, cell_format)
+        worksheet.write(row, 1, value, fmt)
+    
+    # Set initial column widths
+    worksheet.set_column('A:A', 50)  # Description column
+    worksheet.set_column('B:B', 20)  # Value column
+    
+    # Create a temporary DataFrame for auto-width calculation
+    summary_df = pd.DataFrame({
+        'Description': [desc for desc, _, _ in tax_data],
+        'Value': [value for _, value, _ in tax_data]
+    })
+    
+    # Adjust column widths based on content
+    _adjust_column_widths(worksheet, summary_df)
 
 def load_trades_from_excel(filename: str = DEFAULT_TRADES_FILE) -> list[Transaction]:
     """Load trades from Excel file and convert to Transaction objects."""
@@ -302,15 +439,15 @@ def process_pit38_tax(config: Configuration) -> dict:
     tax_transactions = create_tax_transactions(trades, rates, working_config.settlement_day)
     logger.info(f"Mapped {len(tax_transactions)} transactions with rates")
     
-    # Save tax transactions model to file
-    save_trades_to_excel(tax_transactions)
-    
     # Calculate PIT-38
     pit38 = calculate_pit_38(
         tax_transactions, 
         working_config.tax_year, 
         working_config.previous_year_cost_field36
     )
+    
+    # Save tax transactions model to file with tax summary
+    save_trades_to_excel(tax_transactions, pit38=pit38)
     
     logger.info(f"PIT-38 Calculations for tax year {working_config.tax_year}:")
     
