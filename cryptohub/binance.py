@@ -49,7 +49,7 @@ class BinanceAPI:
                 
             symbol = symbol_info["symbol"]
             pair_mapping[symbol] = Pair(
-                pair_id=symbol,
+                symbol=symbol,
                 base_currency=symbol_info["baseAsset"],
                 quote_currency=symbol_info["quoteAsset"]
             )
@@ -125,24 +125,16 @@ class BinanceAPI:
         
         transaction = Transaction(
             platform=self.platform_name,
-            pair=symbol,
+            trade_id=str(trade["id"]),
+            trading_pair=symbol,
             base_currency=base_currency,
             quote_currency=quote_currency,
             price=price,
-            time=datetime.datetime.fromtimestamp(trade["time"] / 1000),
-            ordertxid=str(trade["orderId"]),
-            aclass="spot",
-            maker=trade["isMaker"],
-            trade_id=str(trade["id"]),
-            vol=qty,
-            ordertype="LIMIT" if trade["isMaker"] else "MARKET",  # Approximate
-            cost=cost,
+            timestamp=datetime.datetime.fromtimestamp(trade["time"] / 1000),
+            volume=qty,
+            total_cost=cost,
             fee=Decimal(str(trade["commission"])),
-            postxid="",
-            misc="",
-            leverage=Decimal("1"),
-            margin=Decimal("0"),
-            type="buy" if trade["isBuyer"] else "sell"
+            trade_type="buy" if trade["isBuyer"] else "sell"
         )
         return transaction
 

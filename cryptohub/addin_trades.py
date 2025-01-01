@@ -14,22 +14,22 @@ logger = logging.getLogger(__name__)
 console = Console()
 
 
-def _create_dataframe(trades: List[Transaction]) -> pd.DataFrame:
+def _create_dataframe(trades: list[Transaction]) -> pd.DataFrame:
     """Create a DataFrame from trade transactions."""
     df_records = []
     for trade in trades:
         record = {
             'Platform': trade.platform,
             'Trade ID': str(trade.trade_id),
-            'Trading Pair': str(trade.pair),
+            'Trading Pair': str(trade.trading_pair),
             'Base Currency': str(trade.base_currency),
             'Quote Currency': str(trade.quote_currency),
-            'Price': float(trade.price),  # Convert Decimal to float
-            'Date & Time': trade.time.strftime('%Y-%m-%d %H:%M:%S'),
-            'Volume': float(trade.vol),  # Convert Decimal to float
-            'Total Cost': float(trade.cost),  # Convert Decimal to float
-            'Fee': float(trade.fee),  # Convert Decimal to float
-            'Type': str(trade.type).upper(),
+            'Price': float(trade.price),
+            'Date & Time': trade.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'Volume': float(trade.volume),
+            'Total Cost': float(trade.total_cost),
+            'Fee': float(trade.fee),
+            'Type': str(trade.trade_type).upper(),
         }
         df_records.append(record)
     

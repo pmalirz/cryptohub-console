@@ -23,11 +23,7 @@ class KrakenAPI:
         return response
 
     def transactions_from_kraken_data(self, data):
-        """
-        Converts Kraken trade data to a Transaction object.
-        Uses pair_to_quote mapping to get base and quote currencies.
-        """
-        pair = data["pair"]
+        pair = data["pair"]  # trading_pair from the API
         pair_info = self.pair_to_quote.get(pair)
         if not pair_info:
             logger.warning(f"No pair info found for {pair}")
@@ -36,27 +32,19 @@ class KrakenAPI:
         else:
             base_currency = pair_info.base_currency
             quote_currency = pair_info.quote_currency
-        
+
         return Transaction(
             platform=self.platform_name,
-            pair=pair,
+            trade_id=str(data["trade_id"]),
+            trading_pair=pair,
             base_currency=base_currency,
             quote_currency=quote_currency,
             price=Decimal(str(data["price"])),
-            time=datetime.datetime.fromtimestamp(data["time"]),
-            ordertxid=data["ordertxid"],
-            aclass=data["aclass"],
-            maker=bool(data["maker"]),
-            trade_id=str(data["trade_id"]),
-            vol=Decimal(str(data["vol"])),
-            ordertype=data["ordertype"],
-            cost=Decimal(str(data["cost"])),
+            timestamp=datetime.datetime.fromtimestamp(data["time"]),
+            volume=Decimal(str(data["vol"])),
+            total_cost=Decimal(str(data["cost"])),
             fee=Decimal(str(data["fee"])),
-            postxid=data["postxid"],
-            misc=data["misc"] or "",
-            leverage=Decimal(str(data["leverage"])),
-            margin=Decimal(str(data["margin"])),
-            type=data["type"]
+            trade_type=data["type"]
         )
 
     def download_asset_pairs(self):
@@ -78,7 +66,7 @@ class KrakenAPI:
                 if self.filter_quote_assets is not None and quote not in self.filter_quote_assets:
                     continue
                 pair_mapping[pair_id] = Pair(
-                    pair_id=pair_id,
+                    symbol=pair_id,
                     base_currency=base,
                     quote_currency=quote
                 )

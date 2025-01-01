@@ -45,7 +45,7 @@ class NBPClient:
             return {
                 datetime.strptime(rate["effectiveDate"], "%Y-%m-%d").date(): 
                 ExchangeRate(
-                    rateDate=datetime.strptime(rate["effectiveDate"], "%Y-%m-%d").date(),
+                    rate_date=datetime.strptime(rate["effectiveDate"], "%Y-%m-%d").date(),
                     rate=Decimal(str(rate["mid"])),  # Changed from float to Decimal
                     base_currency=currency,
                     quote_currency="PLN"
@@ -79,7 +79,7 @@ class NBPClient:
         currency_dates = defaultdict(list)
         for tx in transactions:
             if tx.quote_currency != "PLN":
-                currency_dates[tx.quote_currency].append(tx.time.date())
+                currency_dates[tx.quote_currency].append(tx.timestamp.date())
         
         # Get rates for each currency's date range
         rates_by_currency: Dict[str, Dict[datetime.date, ExchangeRate]] = {}

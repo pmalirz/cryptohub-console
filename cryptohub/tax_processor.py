@@ -37,7 +37,7 @@ def create_tax_transactions(
             logger.warning(f"No rates found for currency: {transaction.quote_currency}")
             continue
             
-        tx_date = transaction.time.date()
+        tx_date = transaction.timestamp.date()
         exchange_rate = None
         
         # Look for exchange rate starting from transaction date and going backward 
@@ -126,21 +126,21 @@ def calculate_pit_38(
     # Filter transactions for the given year
     year_transactions = [
         tx for tx in tax_transactions 
-        if tx.transaction.time.year == for_year
+        if tx.transaction.timestamp.year == for_year
     ]
     
     # Calculate total income (field 34) - sum of all sales
     income = sum(
-        tx.total_cost_tax_curr 
+        tx.total_cost_tax_currency 
         for tx in year_transactions 
-        if tx.transaction.type.upper() == "SELL"
+        if tx.transaction.trade_type.upper() == "SELL"
     )
     
     # Calculate current year costs (field 35) - sum of all purchases
     current_year_costs = sum(
-        tx.total_cost_tax_curr 
+        tx.total_cost_tax_currency
         for tx in year_transactions 
-        if tx.transaction.type.upper() == "BUY"
+        if tx.transaction.trade_type.upper() == "BUY"
     )
     
     pit38 = Pit38Data(

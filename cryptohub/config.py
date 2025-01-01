@@ -69,7 +69,7 @@ def load_config() -> Configuration:
     parser.add_argument('--FILTER_QUOTE_ASSETS', type=str,
                         help='Comma separated list of quote assets to filter (if empty, no filtering is applied)')
     
-    args = parser.parse_known_args()
+    args, unknown = parser.parse_known_args()
     args_dict = {k: v for k, v in vars(args).items() if v is not None}
 
     # Start with env vars and override with command line args

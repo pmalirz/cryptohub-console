@@ -17,25 +17,25 @@ from rich.table import Table
 logger = logging.getLogger(__name__)
 console = Console()
 
-def _create_dataframe(trades: List[TransactionForTax]) -> pd.DataFrame:
+def _create_dataframe(trades: list[TransactionForTax]) -> pd.DataFrame:
     """Create a DataFrame from tax transactions."""
     df_records = []
     for tax_tx in trades:
         record = {
             'Platform': tax_tx.transaction.platform,
             'Trade ID': str(tax_tx.transaction.trade_id),
-            'Trading Pair': str(tax_tx.transaction.pair),
+            'Trading Pair': str(tax_tx.transaction.trading_pair),
             'Base Currency': str(tax_tx.transaction.base_currency),
             'Quote Currency': str(tax_tx.transaction.quote_currency),
-            'Price': float(tax_tx.transaction.price),  # Convert Decimal to float
-            'Date & Time': tax_tx.transaction.time.strftime('%Y-%m-%d %H:%M:%S'),
-            'Volume': float(tax_tx.transaction.vol),  # Convert Decimal to float
-            'Total Cost': float(tax_tx.transaction.cost),  # Convert Decimal to float
-            'Fee': float(tax_tx.transaction.fee),  # Convert Decimal to float
-            'Type': str(tax_tx.transaction.type).upper(),
-            f'Exchange Rate (Quote Currency/PLN)': float(tax_tx.tax_exchange_rate.rate),  # Convert Decimal to float
-            'Rate Date': tax_tx.tax_exchange_rate.rateDate.strftime('%Y-%m-%d'),
-            'Total Cost (PLN)': float(tax_tx.total_cost_tax_curr),
+            'Price': float(tax_tx.transaction.price),
+            'Date & Time': tax_tx.transaction.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'Volume': float(tax_tx.transaction.volume),
+            'Total Cost': float(tax_tx.transaction.total_cost),
+            'Fee': float(tax_tx.transaction.fee),
+            'Type': str(tax_tx.transaction.trade_type).upper(),
+            'Exchange Rate (Quote Currency/PLN)': float(tax_tx.tax_exchange_rate.rate),
+            'Rate Date': tax_tx.tax_exchange_rate.rate_date.strftime('%Y-%m-%d'),
+            'Total Cost (PLN)': float(tax_tx.total_cost_tax_currency),
             'Total Cost (PLN) by Formula': ''  # Placeholder for the calculated column            
         }
         df_records.append(record)
