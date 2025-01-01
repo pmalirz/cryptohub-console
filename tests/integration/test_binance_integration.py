@@ -6,10 +6,11 @@ from cryptohub.config import load_config
 
 @pytest.fixture
 def binance_api():
-    #config = load_config()["binance"][0]
-    key = ""
-    secret = ""
-    return BinanceAPI(key, secret)
+    load_config()
+    key = os.getenv("BINANCE_API_KEY_1", "")
+    secret = os.getenv("BINANCE_API_SECRET_1", "")
+    filter_quote_assets = ["EUR"]
+    return BinanceAPI(key, secret, filter_quote_assets)
 
 def test_download_asset_pairs_integration(binance_api):
     pairs = binance_api.download_asset_pairs()

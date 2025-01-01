@@ -1,4 +1,5 @@
 import os
+import sys
 from typing import Dict
 from dataclasses import dataclass
 import argparse
@@ -68,8 +69,8 @@ def load_config() -> Configuration:
     # New argument for filtering quote assets.
     parser.add_argument('--FILTER_QUOTE_ASSETS', type=str,
                         help='Comma separated list of quote assets to filter (if empty, no filtering is applied)')
-
-    args = parser.parse_args()
+    
+    args = parser.parse_known_args()
     args_dict = {k: v for k, v in vars(args).items() if v is not None}
 
     # Start with env vars and override with command line args
