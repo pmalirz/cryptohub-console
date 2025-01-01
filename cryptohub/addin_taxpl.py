@@ -316,24 +316,34 @@ def process_pit38_tax(config: Configuration) -> dict:
     
     field_descriptions = {
         "year": "Tax year",
-        "field34_income": "Field 34: Total income from crypto sales",
-        "field35_costs_current_year": "Field 35: Costs from current year",
-        "field36_costs_previous_years": "Field 36: Unused costs from previous years ",
-        "field37_tax_base": "Field 37: Taxable income (if positive)",
-        "field38_loss": "Field 38: Loss (if negative)",
-        "field39_tax": "Field 39: Tax due (19% of field 37)"
+        "field34_income": "Field 34: Total income from crypto sales (PLN)",
+        "field35_costs_current_year": "Field 35: Costs from current year (PLN)",
+        "field36_costs_previous_years": "Field 36: Unused costs from previous years (PLN)",
+        "field37_tax_base": "Field 37: Taxable income (PLN)",
+        "field38_loss": "Field 38: Loss (PLN)",
+        "field39_tax": "Field 39: Tax due - 19% (PLN)"
     }
     
     # Log details and also prepare data for user display
-    table = Table(title=f"PIT-38 Calculations for Tax Year {working_config.tax_year}")
-    table.add_column("Description", justify="left")
-    table.add_column("Value", justify="right")
+    table = Table(
+        title=f"PIT-38 Calculations for Tax Year {working_config.tax_year}",
+        title_style="bold blue",
+        header_style="bold cyan"
+    )
+    table.add_column("Description", justify="left", style="green")
+    table.add_column("Value (PLN)", justify="right", style="yellow")
     
     from dataclasses import asdict
     for field_name, value in asdict(pit38).items():
         description = field_descriptions.get(field_name, field_name)
-        logger.info(f"{description}: {value}")
-        value_str = f"[red]{value}[/red]" if field_name == "field39_tax" else str(value)
+        logger.info(f"{description}: {value} PLN")
+        # Format value with PLN currency for non-year fields
+        if field_name != "year":
+            value_str = f"{value:,.2f} PLN"
+            if field_name == "field39_tax":
+                value_str = f"[red]{value:,.2f} PLN[/red]"
+        else:
+            value_str = str(value)
         table.add_row(description, value_str)
     
     console.print(table, emoji=True)
