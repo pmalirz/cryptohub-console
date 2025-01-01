@@ -24,9 +24,7 @@ myenv/
 # Project specific
 *.log
 logs/
-tax_transactions.json
-tax_transactions.csv
-tax_transactions.xlsx
+*.xlsx
 *.bak
 
 # Environment variables and secrets
