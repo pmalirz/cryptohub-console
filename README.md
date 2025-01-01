@@ -72,7 +72,7 @@ pip install -r requirements.txt
 You can run the project as a module from the project root:
 
 ```sh
-python -m cryptohub.main --krakenKey YOUR_KEY --krakenSecret YOUR_SECRET
+python -m cryptohub.main --KRAKEN_API_KEY_1 YOUR_KEY --KRAKEN_API_SECRET_1 YOUR_SECRET
 ```
 
 Alternatively, if you wish to run an executable after building it, refer to the build instructions below.
@@ -81,7 +81,8 @@ Alternatively, if you wish to run an executable after building it, refer to the 
 
 ### Environment Variables
 
-Create a `.env` file in the project root directory with your configuration:
+A `.env` file is the preferred way to setup the CryptHub (comparing to passing the parameters via commandline parameters as stated above).
+Create the `.env` file in the project root directory with your configuration:
 
 ```properties
 # Kraken account configuration
@@ -142,7 +143,7 @@ python -m cryptohub.main --KRAKEN_1 "My Account" --KRAKEN_API_KEY_1 your_key --K
 To build the executable (named `cryptohub.exe`), install PyInstaller and run the following command with your modified spec file:
 
 ```sh
-pyinstaller --onefile main.spec
+pyinstaller main.spec
 ```
 
 ## Development
