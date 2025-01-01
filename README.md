@@ -1,4 +1,4 @@
-# CryptoHub CLI
+# CryptoHub (Console Tool)
 
 A command-line tool for crypto traders to:
 
