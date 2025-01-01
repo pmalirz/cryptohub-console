@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from decimal import Decimal
 import logging
-from transaction import Transaction, TransactionForTax, ExchangeRate
+from .transaction import Transaction, TransactionForTax, ExchangeRate
 
 logger = logging.getLogger(__name__)
 

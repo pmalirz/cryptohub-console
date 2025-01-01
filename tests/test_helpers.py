@@ -1,6 +1,6 @@
 import csv
 from datetime import datetime
-from transaction import Transaction
+from cryptohub.transaction import Transaction
 
 def load_sample_transactions(csv_path: str) -> list[Transaction]:
     transactions = []

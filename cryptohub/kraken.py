@@ -8,7 +8,7 @@ import logging
 import datetime
 from decimal import Decimal
 
-from transaction import Pair, Transaction
+from .transaction import Pair, Transaction
 
 logger = logging.getLogger(__name__)
 

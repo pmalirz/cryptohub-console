@@ -5,11 +5,10 @@ from typing import List
 
 import pandas as pd
 
-from nbp import NBPClient
-from tax_processor import create_tax_transactions, calculate_pit_38
-from transaction import TransactionForTax
+from .nbp import NBPClient
+from .tax_processor import create_tax_transactions, calculate_pit_38
+from .transaction import TransactionForTax
 
-# Import Rich components for user-facing output
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table

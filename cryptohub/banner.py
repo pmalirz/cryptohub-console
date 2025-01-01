@@ -10,7 +10,7 @@ def display_banner():
     
     # Create styled texts
     title = Text()
-    title.append("CryptoTaxPL - Copyright (c) 2025 by ", style="yellow")
+    title.append("CryptoHub - Copyright (c) 2025 by ", style="yellow")
     title.append("Przemek Malirz", style="orange1")
     
     contact = Text("Contact: p.malirz@gmail.com", style="yellow")
@@ -29,8 +29,8 @@ def display_banner():
         box=box.HEAVY,
         border_style="green",
         padding=(1, 2),
-        title="[bold green]CryptoTaxPL[/]",
-        subtitle="[bold green]v1.0.0[/]"
+        title="[bold green]CryptoHub[/]",
+        subtitle="[bold green]v2025.02-1[/]"
     )
     
     # Print with spacing

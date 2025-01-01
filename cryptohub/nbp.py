@@ -3,7 +3,7 @@ from typing import Dict, List
 from collections import defaultdict
 import logging
 import requests 
-from transaction import ExchangeRate, Transaction
+from .transaction import ExchangeRate, Transaction
 from decimal import Decimal
 
 logger = logging.getLogger(__name__)

@@ -2,9 +2,9 @@ import logging
 from typing import List
 
 import pandas as pd
-from config import Configuration
-from kraken import KrakenAPI
-from transaction import Transaction
+from .config import Configuration
+from .kraken import KrakenAPI
+from .transaction import Transaction
 
 from rich.console import Console
 from rich.panel import Panel

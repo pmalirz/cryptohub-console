@@ -1,11 +1,11 @@
-from addin_taxpl import process_pit38_tax
-from addin_trades import download_and_save_trades
-from config import load_config
-from banner import display_banner
-from help import display_help
+from .addin_taxpl import process_pit38_tax
+from .addin_trades import download_and_save_trades
+from .config import load_config
+from .banner import display_banner
+from .help import display_help
 import logging
 from colorama import init
-import set_logging
+from . import set_logging
 import sys
 from rich.console import Console
 from rich.panel import Panel
@@ -35,13 +35,13 @@ def main():
         # Log errors for diagnostics
         logger.error("API credentials for Kraken account missing.")
         logger.error("Please provide them in .env file or via CLI arguments:")
-        logger.error("  cryptotaxpl --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret")
+        logger.error("  cryptohub --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret")
         
         # Show an error panel using Rich for user-friendly output
         error_message = (
             "API credentials for Kraken account missing.\n\n"
             "Please provide them in your .env file or via CLI arguments:\n"
-            "  cryptotaxpl --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret"
+            "  cryptohub --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret"
         )
         console.print(Panel(error_message, title="Configuration Error", border_style="red"))
         return
