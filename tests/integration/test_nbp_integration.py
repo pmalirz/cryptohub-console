@@ -1,3 +1,4 @@
+from decimal import Decimal
 import pytest
 from datetime import datetime, timedelta, date
 from pathlib import Path
@@ -77,44 +78,30 @@ def test_get_rates_for_transactions_with_gaps(nbp_client):
     current_date = datetime.now()
     transactions = [
         Transaction(
-            pair="BTCEUR",
+            platform="Exchange",
+            trade_id="1",
+            trading_pair="BTCEUR", 
             base_currency="BTC",
             quote_currency="EUR",
-            price=30000.0,
-            time=current_date - timedelta(days=30),
-            ordertxid="123",
-            aclass="currency",
-            maker=True,
-            trade_id="1",
-            vol=1.0,
-            ordertype="limit",
-            cost=30000.0,
-            fee=10.0,
-            postxid="456",
-            misc="",
-            leverage=0.0,
-            margin=0.0,
-            type="buy"
+            price=Decimal('30000.0'),
+            timestamp=current_date - timedelta(days=30),
+            volume=Decimal('1.0'),
+            total_cost=Decimal('30000.0'),
+            fee=Decimal('10.0'),
+            trade_type="buy"
         ),
         Transaction(
-            pair="BTCEUR",
+            platform="Exchange",
+            trade_id="2",
+            trading_pair="BTCEUR",
             base_currency="BTC",
             quote_currency="EUR",
-            price=35000.0,
-            time=current_date,
-            ordertxid="124",
-            aclass="currency",
-            maker=True,
-            trade_id="2",
-            vol=1.0,
-            ordertype="limit",
-            cost=35000.0,
-            fee=10.0,
-            postxid="457",
-            misc="",
-            leverage=0.0,
-            margin=0.0,
-            type="sell"
+            price=Decimal('35000.0'),
+            timestamp=current_date,
+            volume=Decimal('1.0'),
+            total_cost=Decimal('35000.0'),
+            fee=Decimal('10.0'),
+            trade_type="sell"
         )
     ]
 
