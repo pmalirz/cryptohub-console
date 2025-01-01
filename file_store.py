@@ -29,6 +29,7 @@ def _create_dataframe(trades: List[TransactionForTax]) -> pd.DataFrame:
             'Type': str(tax_tx.transaction.type).upper(),
             f'Exchange Rate (Quote Currency/PLN)': float(tax_tx.tax_exchange_rate.rate),  # Convert Decimal to float
             'Rate Date': tax_tx.tax_exchange_rate.rateDate.strftime('%Y-%m-%d'),
+            'Total Cost (PLN)': ''  # Placeholder for the calculated column
         }
         df_records.append(record)
     
@@ -71,10 +72,9 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_t
     buy_format = workbook.add_format({'bg_color': '#C6EFCE'})  # Light green
     sell_format = workbook.add_format({'bg_color': '#FFC7CE'})  # Light red
     number_format = workbook.add_format({'num_format': '#.##0,00000000'})  # For crypto values
-    currency_format = workbook.add_format({'num_format': '#.##0,00'})      # For PLN values
-    
+        
     # Set numeric format for specific columns
-    numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee', 'Exchange Rate (Quote Currency/PLN)']
+    numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee', 'Exchange Rate (Quote Currency/PLN)', 'Total Cost (PLN)']
     for col_name in numeric_columns:
         col_idx = df.columns.get_loc(col_name)
         worksheet.set_column(col_idx, col_idx, None, number_format)
@@ -86,9 +86,7 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_t
     type_col = df.columns.get_loc('Type') + 1
 
     # Add the Total Cost (PLN) column header and format
-    last_col = len(df.columns)
-    worksheet.write(0, last_col, 'Total Cost (PLN)')
-    worksheet.set_column(last_col, last_col, 15, currency_format)
+    last_col = len(df.columns) - 1
     
     # Add formula for each row starting from row 2 (1-based in Excel)
     for row in range(2, len(df) + 2):
@@ -100,12 +98,12 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_t
         worksheet.write_formula(row-1, last_col, formula)
     
     # Apply conditional formatting
-    worksheet.conditional_format(1, 0, len(df), len(df.columns), {
+    worksheet.conditional_format(1, 0, len(df), last_col, {
         'type': 'formula',
         'criteria': f'=${chr(64+type_col)}2="BUY"',
         'format': buy_format
     })
-    worksheet.conditional_format(1, 0, len(df), len(df.columns), {
+    worksheet.conditional_format(1, 0, len(df), last_col, {
         'type': 'formula',
         'criteria': f'=${chr(64+type_col)}2="SELL"',
         'format': sell_format
