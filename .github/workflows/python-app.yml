@@ -16,6 +16,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
+    env:
+      SKIP_BINANCE_TESTS: "1"
 
     steps:
     - uses: actions/checkout@v4

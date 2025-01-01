@@ -4,12 +4,23 @@ import time
 from cryptohub.binance import BinanceAPI
 from cryptohub.config import load_config
 
+# Skip all tests in this file if SKIP_BINANCE_TESTS is set
+pytestmark = pytest.mark.skipif(
+    os.environ.get("SKIP_BINANCE_TESTS") == "1", 
+    reason="Binance integration tests disabled via SKIP_BINANCE_TESTS env var"
+)
+
 @pytest.fixture
 def binance_api():
     key = os.getenv("BINANCE_API_KEY_1", "")
     secret = os.getenv("BINANCE_API_SECRET_1", "")
     pair_pattern = "^SOLEUR$" # Remember that this require the pair to be exactly SOLEUR on the Binance exchange (this is set up via env / GitHub Actions).
-    return BinanceAPI(key, secret, pair_pattern = pair_pattern)
+    
+    # Skip individual tests if credentials are missing
+    if not key or not secret:
+        pytest.skip("Binance API credentials not provided")
+        
+    return BinanceAPI(key, secret, pair_pattern=pair_pattern)
 
 def test_download_asset_pairs_integration(binance_api):
     pairs = binance_api.download_asset_pairs()
