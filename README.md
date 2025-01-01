@@ -89,7 +89,7 @@ KRAKEN_1=My Account Name              # Optional account name
 KRAKEN_API_KEY_1=your_api_key         # Required API key
 KRAKEN_API_SECRET_1=your_api_secret   # Required API secret
 
-# You can configure multiple accounts by incrementing the number
+# You can configure multiple Kraken accounts by incrementing the number:
 KRAKEN_2=Second Account
 KRAKEN_API_KEY_2=second_api_key
 KRAKEN_API_SECRET_2=second_api_secret
@@ -98,6 +98,8 @@ KRAKEN_API_SECRET_2=second_api_secret
 BINANCE_1=My Binance Account          # Optional account name
 BINANCE_API_KEY_1=your_binance_api_key         # Required API key
 BINANCE_API_SECRET_1=your_binance_api_secret   # Required API secret
+# Optional regex filtering of trading pairs, e.g., to include only pairs ending with USDT or EUR.
+BINANCE_PAIR_PATTERN_1=.*(USDT|EUR)$
 
 # Tax calculation settings
 SETTLEMENT_DAY=-1                     # Settlement day for tax calculations
@@ -150,3 +152,4 @@ To deactivate the virtual environment when you're done:
 ```sh
 deactivate
 ```
+````
