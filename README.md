@@ -1,6 +1,7 @@
 # Crypto Tax PL CLI
 
 A command-line tool for Polish crypto traders to:
+
 - Download trading history from Kraken exchange
 - Fetch NBP (National Bank of Poland) exchange rates
 - Calculate tax-relevant transaction data
