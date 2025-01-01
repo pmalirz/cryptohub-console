@@ -231,12 +231,13 @@ def process_pit38_tax(config: Configuration) -> dict:
     # Get recent trade files
     recent_files = get_recent_trade_files()
     
-    # Create choices for questionary
-    choices = ["Enter file name manually", "trades.xlsx"] + recent_files
+    # Create choices for questionary with trades.xlsx as first option
+    choices = ["trades.xlsx (default)", "Enter file name manually"] + recent_files
     
     file_choice = questionary.select(
         "Select trades file or enter manually:",
         choices=choices,
+        default="trades.xlsx (default)",
         use_indicator=True,
         style=questionary.Style([
             ('selected', 'bg:blue fg:white'),
@@ -249,7 +250,7 @@ def process_pit38_tax(config: Configuration) -> dict:
             "Enter trades file name:",
             default="trades.xlsx"
         ).ask()
-    elif file_choice == "trades.xlsx":
+    elif file_choice == "trades.xlsx (default)":
         filename = "trades.xlsx"
     else:
         filename = file_choice
