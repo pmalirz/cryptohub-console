@@ -152,4 +152,3 @@ To deactivate the virtual environment when you're done:
 ```sh
 deactivate
 ```
-````
