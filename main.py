@@ -2,6 +2,7 @@ from dataclasses import asdict
 from decimal import Decimal
 from config import load_config
 from banner import display_banner
+from help import display_help
 from kraken import KrakenAPI
 from file_store import save_trades_to_excel
 from nbp import NBPClient
@@ -9,6 +10,7 @@ import logging
 from colorama import init, Fore
 import set_logging
 from tax_processor import calculate_pit_38, create_tax_transactions
+import sys
 
 # Initialize colorama
 init(autoreset=True)
@@ -18,9 +20,15 @@ set_logging.setup_logging()
 
 logger = logging.getLogger(__name__)
 
-def main():
+def main():        
     display_banner()
-    logger.info("Starting the main function")
+    
+    # Display help if requested
+    if len(sys.argv) == 2 and sys.argv[1] in ['/?', '--help', '-h']:
+        display_help()
+        return    
+    
+    # Load configuration
     config = load_config()
     if not config.hasAnyKrakenAccounts():
         logger.error("API credentials for Kraken account missing. Please provide them in .env file or via CLI arguments.")
