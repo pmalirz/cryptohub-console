@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
+from dataclasses import dataclass, field
 
 @dataclass
 class Transaction:
@@ -41,3 +42,13 @@ class ExchangeRate:
 class TransactionForTax:
     transaction: Transaction
     tax_exchange_rate: ExchangeRate
+    total_cost_tax_curr: Decimal = field(init=False)  # Computed on instance creation
+
+    def __post_init__(self):
+        # Compute total_cost_pln based on transaction cost and exchange rate.
+        # Modify the calculation as needed for your specific logic.
+        self.total_cost_tax_curr = (
+            (self.transaction.cost + self.transaction.fee) * self.tax_exchange_rate.rate
+            if str(self.transaction.type).upper() == "BUY"
+            else (self.transaction.cost - self.transaction.fee) * self.tax_exchange_rate.rate
+        )

@@ -29,14 +29,15 @@ def _create_dataframe(trades: List[TransactionForTax]) -> pd.DataFrame:
             'Type': str(tax_tx.transaction.type).upper(),
             f'Exchange Rate (Quote Currency/PLN)': float(tax_tx.tax_exchange_rate.rate),  # Convert Decimal to float
             'Rate Date': tax_tx.tax_exchange_rate.rateDate.strftime('%Y-%m-%d'),
-            'Total Cost (PLN)': ''  # Placeholder for the calculated column
+            'Total Cost (PLN)': float(tax_tx.total_cost_tax_curr),
+            'Total Cost (PLN) by Formula': ''  # Placeholder for the calculated column            
         }
         df_records.append(record)
     
     df = pd.DataFrame(df_records)
     
     # Set numeric columns type explicitly
-    numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee', 'Exchange Rate (Quote Currency/PLN)']
+    numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee', 'Exchange Rate (Quote Currency/PLN)', 'Total Cost (PLN)', 'Total Cost (PLN) by Formula']
     for col in numeric_columns:
         df[col] = pd.to_numeric(df[col])
     
@@ -62,7 +63,7 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_t
     number_format = workbook.add_format({'num_format': '#.##0,00000000'})  # For crypto values
         
     # Set numeric format for specific columns
-    numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee', 'Exchange Rate (Quote Currency/PLN)', 'Total Cost (PLN)']
+    numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee', 'Exchange Rate (Quote Currency/PLN)', 'Total Cost (PLN)', 'Total Cost (PLN) by Formula']
     for col_name in numeric_columns:
         col_idx = df.columns.get_loc(col_name)
         worksheet.set_column(col_idx, col_idx, None, number_format)
@@ -105,9 +106,6 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "tax_t
             len(str(series.name))
         ) + 1
         worksheet.set_column(idx, idx, max_len)
-    
-    # Auto-adjust the new PLN column
-    worksheet.set_column(last_col, last_col, 15)
     
     writer.close()
     logger.info(f"Saved tax transactions to {filename}")
