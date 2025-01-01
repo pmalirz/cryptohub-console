@@ -128,7 +128,6 @@ python -m cryptohub.main --KRAKEN_1 "My Account" --KRAKEN_API_KEY_1 your_key --K
 
 However, the `.env` file is the preferred way to setup the CryptHub (comparing to passing the parameters via commandline parameters as stated above).
 
-
 ### Configuration Priority
 
 1. Command line arguments take precedence over environment variables  
