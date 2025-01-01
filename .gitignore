@@ -24,7 +24,7 @@ myenv/
 # Project specific
 *.log
 logs/
-*.xlsx
+/*.xlsx
 *.bak
 
 # Environment variables and secrets
