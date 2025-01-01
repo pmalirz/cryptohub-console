@@ -101,8 +101,7 @@ def interactive_menu(config):
             continue
     
         elif action == "Calculate Tax (PL Only)":
-            trades = download_and_save_trades(config)
-            process_pit38_tax(config, trades)
+            process_pit38_tax(config)
             continue
         
         elif action == "Exit":

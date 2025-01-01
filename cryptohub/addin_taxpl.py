@@ -3,12 +3,15 @@ from decimal import Decimal
 from dataclasses import asdict
 from typing import List
 from datetime import datetime
+from pathlib import Path
+import os
 
 import pandas as pd
+import questionary
 
 from .nbp import NBPClient
 from .tax_processor import create_tax_transactions, calculate_pit_38
-from .transaction import TransactionForTax
+from .transaction import Transaction, TransactionForTax
 
 from rich.console import Console
 from rich.panel import Panel
@@ -49,7 +52,7 @@ def _create_dataframe(trades: list[TransactionForTax]) -> pd.DataFrame:
     
     return df
 
-def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "trades_taxpl.xlsx"):
+def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl.xlsx"):
     """
     Save trades to Excel with color formatting.
     Appends ISO date & time to the filename.
@@ -127,10 +130,86 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "trade
     # User-friendly message using Rich
     console.print(f"💾 Saved trades together with tax calculations to {colored_filename}.")
 
+def load_trades_from_excel(filename: str = "trades.xlsx") -> list[Transaction]:
+    """Load trades from Excel file and convert to Transaction objects."""
+    try:
+        df = pd.read_excel(filename)
+        logger.info(f"Successfully loaded {len(df)} trades from {filename}")
+        
+        transactions = []
+        for _, row in df.iterrows():
+            transaction = Transaction(
+                platform=row['Platform'],
+                trade_id=str(row['Trade ID']),
+                trading_pair=str(row['Trading Pair']),
+                base_currency=str(row['Base Currency']),
+                quote_currency=str(row['Quote Currency']),
+                price=Decimal(str(row['Price'])),
+                timestamp=datetime.strptime(row['Date & Time'], '%Y-%m-%d %H:%M:%S'),
+                volume=Decimal(str(row['Volume'])),
+                total_cost=Decimal(str(row['Total Cost'])),
+                fee=Decimal(str(row['Fee'])),
+                trade_type=str(row['Type'])
+            )
+            transactions.append(transaction)
+            
+        return transactions
+        
+    except FileNotFoundError:
+        logger.error(f"File {filename} not found")
+        raise
+    except Exception as e:
+        logger.error(f"Error loading trades from {filename}: {e}")
+        raise
 
-def process_pit38_tax(config, trades):
-    # Print starting message with Polish flag emoji using Rich
-    console.rule("[bold blue]PIT-38 Tax Calculation[/bold blue]")
+def get_recent_trade_files(pattern: str = "trades_*.xlsx", limit: int = 5) -> list[str]:
+    """Get most recent trade files matching the pattern."""
+    # Get all files matching the pattern
+    files = list(Path('.').glob(pattern))
+    # Sort by modification time, newest first
+    files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+    # Return only the specified number of files
+    return [f.name for f in files[:limit]]
+
+def process_pit38_tax(config):
+    """Process PIT-38 tax calculations based on trades from Excel file."""
+    console.rule("[bold blue]🇵🇱 PIT-38 Tax Calculation[/bold blue]")
+    
+    # Get recent trade files
+    recent_files = get_recent_trade_files()
+    
+    # Create choices for questionary
+    choices = ["Enter file name manually", "trades.xlsx"] + recent_files
+    
+    file_choice = questionary.select(
+        "Select trades file or enter manually:",
+        choices=choices,
+        use_indicator=True,
+        style=questionary.Style([
+            ('selected', 'bg:blue fg:white'),
+            ('pointer', 'fg:blue'),
+        ])
+    ).ask()
+    
+    if file_choice == "Enter file name manually":
+        filename = questionary.text(
+            "Enter trades file name:",
+            default="trades.xlsx"
+        ).ask()
+    elif file_choice == "trades.xlsx":
+        filename = "trades.xlsx"
+    else:
+        filename = file_choice
+    
+    try:
+        trades = load_trades_from_excel(filename)
+        console.print(f"[green]Successfully loaded {len(trades)} trades from {filename}[/green]")
+    except FileNotFoundError:
+        console.print(f"[red]Error: File {filename} not found![/red]")
+        return
+    except Exception as e:
+        console.print(f"[red]Error loading trades: {str(e)}[/red]")
+        return
         
     # Get exchange rates from NBP with a progress bar
     from rich.progress import Progress, SpinnerColumn, TextColumn, TimeElapsedColumn
@@ -155,7 +234,7 @@ def process_pit38_tax(config, trades):
     # Save tax transactions model to file
     save_trades_to_excel(tax_transactions)
     
-    # Use the new configuration parameter for previous year costs
+    # Calculate PIT-38
     pit38 = calculate_pit_38(tax_transactions, config.tax_year, config.previous_year_cost_field36)
     
     logger.info(f"PIT-38 Calculations for tax year {config.tax_year}:")
