@@ -94,8 +94,8 @@ def interactive_menu(config):
                 console.print("[red]No valid accounts selected![/red]")
                 continue
             
-            # Download trades
-            trades = download_and_save_trades(working_config)
+            # Download and save trades
+            download_and_save_trades(working_config)
             
             # Return to main menu
             continue

@@ -8,7 +8,6 @@ from .kraken import KrakenAPI
 from .transaction import Transaction
 
 from rich.console import Console
-from rich.panel import Panel
 
 logger = logging.getLogger(__name__)
 console = Console()

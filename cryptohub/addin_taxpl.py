@@ -4,7 +4,6 @@ from dataclasses import asdict
 from typing import List
 from datetime import datetime
 from pathlib import Path
-import os
 
 import pandas as pd
 import questionary
@@ -16,11 +15,19 @@ from .tax_processor import create_tax_transactions, calculate_pit_38
 from .transaction import Transaction, TransactionForTax
 
 from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
 
 logger = logging.getLogger(__name__)
 console = Console()
+
+# Add at the top of the file with other constants
+DEFAULT_TRADES_FILE = "trades.xlsx"
+
+# Define custom style for questionary prompts
+QUESTIONARY_STYLE = questionary.Style([
+    ('selected', 'bg:blue fg:white'),
+    ('pointer', 'fg:blue'),
+])  
 
 def _create_dataframe(trades: list[TransactionForTax]) -> pd.DataFrame:
     """Create a DataFrame from tax transactions."""
@@ -132,7 +139,7 @@ def save_trades_to_excel(trades: List[TransactionForTax], filename: str = "taxpl
     # User-friendly message using Rich
     console.print(f"💾 Saved trades together with tax calculations to {colored_filename}.")
 
-def load_trades_from_excel(filename: str = "trades.xlsx") -> list[Transaction]:
+def load_trades_from_excel(filename: str = DEFAULT_TRADES_FILE) -> list[Transaction]:
     """Load trades from Excel file and convert to Transaction objects."""
     try:
         # Read Excel file with specific data types
@@ -199,61 +206,71 @@ def get_recent_trade_files(pattern: str = "trades_*.xlsx", limit: int = 5) -> li
     # Return only the specified number of files
     return [f.name for f in files[:limit]]
 
-def process_pit38_tax(config: Configuration) -> dict:
-    """Process PIT-38 tax calculations based on trades from Excel file."""
-    console.rule("[bold blue]🇵🇱 PIT-38 Tax Calculation[/bold blue]")
-    
-    # Ask for tax calculation parameters with defaults from config
+def prompt_tax_parameters(config: Configuration) -> tuple[int, int, Decimal]:
+    """Prompt user for tax calculation parameters with defaults from config."""
     tax_year = questionary.text(
         "Enter tax year:",
         default=str(config.tax_year or datetime.now().year),
-        validate=lambda x: x.isdigit() and int(x) > 2000
+        validate=lambda x: x.isdigit() and int(x) > 2000,
+        style=QUESTIONARY_STYLE
     ).ask()
     
     settlement_day = questionary.text(
         "Enter settlement day (-1 for last day of the year):",
         default=str(config.settlement_day or -1),
-        validate=lambda x: x.isdigit() or (x.startswith('-') and x[1:].isdigit())
+        validate=lambda x: x.isdigit() or (x.startswith('-') and x[1:].isdigit()),
+        style=QUESTIONARY_STYLE
     ).ask()
     
     previous_year_cost = questionary.text(
         "Enter previous year costs from field 36:",
         default=str(config.previous_year_cost_field36 or "0.00"),
-        validate=lambda x: all(part.isdigit() for part in x.replace(".", "").replace(",", ""))
+        validate=lambda x: all(part.isdigit() for part in x.replace(".", "").replace(",", "")),
+        style=QUESTIONARY_STYLE
     ).ask()
     
-    # Create a temporary config with user-provided values
-    working_config = config.copy()
-    working_config.tax_year = int(tax_year)
-    working_config.settlement_day = int(settlement_day)
-    working_config.previous_year_cost_field36 = Decimal(previous_year_cost.replace(",", "."))
-    
-    # Get recent trade files
-    recent_files = get_recent_trade_files()
-    
-    # Create choices for questionary with trades.xlsx as first option
-    choices = ["trades.xlsx (default)", "Enter file name manually"] + recent_files
+    return (
+        int(tax_year),
+        int(settlement_day),
+        Decimal(previous_year_cost.replace(",", "."))
+    )
+
+def select_trades_file(recent_files: list[str]) -> str:
+    """Prompt user to select or enter trades file name."""
+    choices = [f"{DEFAULT_TRADES_FILE} (default)", "Enter file name manually"] + recent_files
     
     file_choice = questionary.select(
         "Select trades file or enter manually:",
         choices=choices,
-        default="trades.xlsx (default)",
+        default=f"{DEFAULT_TRADES_FILE} (default)",
         use_indicator=True,
-        style=questionary.Style([
-            ('selected', 'bg:blue fg:white'),
-            ('pointer', 'fg:blue'),
-        ])
+        style=QUESTIONARY_STYLE
     ).ask()
     
     if file_choice == "Enter file name manually":
-        filename = questionary.text(
+        return questionary.text(
             "Enter trades file name:",
-            default="trades.xlsx"
+            default=DEFAULT_TRADES_FILE,
+            style=QUESTIONARY_STYLE
         ).ask()
-    elif file_choice == "trades.xlsx (default)":
-        filename = "trades.xlsx"
-    else:
-        filename = file_choice
+    
+    return DEFAULT_TRADES_FILE if file_choice == f"{DEFAULT_TRADES_FILE} (default)" else file_choice
+
+def process_pit38_tax(config: Configuration) -> dict:
+    """Process PIT-38 tax calculations based on trades from Excel file."""
+    console.rule("[bold blue]🇵🇱 PIT-38 Tax Calculation[/bold blue]")
+    
+    # Get tax parameters from user
+    tax_year, settlement_day, previous_year_cost = prompt_tax_parameters(config)
+    
+    # Create a temporary config with user-provided values
+    working_config = config.copy()
+    working_config.tax_year = tax_year
+    working_config.settlement_day = settlement_day
+    working_config.previous_year_cost_field36 = previous_year_cost
+    
+    # Get trades file from user
+    filename = select_trades_file(get_recent_trade_files())
     
     try:
         trades = load_trades_from_excel(filename)
