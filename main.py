@@ -1,4 +1,5 @@
 from config import load_config
+from banner import display_banner
 from kraken import KrakenAPI
 from file_store import save_trades_to_excel
 from nbp import NBPClient
@@ -14,14 +15,6 @@ init(autoreset=True)
 set_logging.setup_logging()
 
 logger = logging.getLogger(__name__)
-
-def display_banner():
-    banner = f"""
-    {Fore.GREEN}############################################################
-    # {Fore.LIGHTYELLOW_EX}CryptoTaxPL by {Fore.LIGHTRED_EX}Przemek Malirz {Fore.LIGHTYELLOW_EX}(p.malirz@gmail.com), 2025
-    {Fore.GREEN}############################################################
-    """
-    print(banner)
 
 def main():
     display_banner()
@@ -49,3 +42,4 @@ def main():
     
 if __name__ == "__main__":
     main()
+    
