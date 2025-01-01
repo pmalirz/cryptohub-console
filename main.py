@@ -31,7 +31,9 @@ def main():
     # Load configuration
     config = load_config()
     if not config.hasAnyKrakenAccounts():
-        logger.error("API credentials for Kraken account missing. Please provide them in .env file or via CLI arguments.")
+        logger.error("API credentials for Kraken account missing.")
+        logger.error("Please provide them in .env file or via CLI arguments:")
+        logger.error("  cryptotaxpl --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret")
         return
 
     # Get Trades from all configured Kraken accounts

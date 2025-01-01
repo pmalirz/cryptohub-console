@@ -1,22 +1,26 @@
-from colorama import Fore, Style, init
-import logging
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.markdown import Markdown
+from rich.padding import Padding
+from rich import box
 
-# Initialize colorama
-init(autoreset=True)
-
-logger = logging.getLogger(__name__)
+console = Console()
 
 def display_help():
-    """Display colorful help information about configuration parameters."""
+    """Display rich help information about configuration parameters."""
     
     # Header
-    print(f"\n{Fore.CYAN}{Style.BRIGHT}{'='*80}")
-    print(f"{Fore.CYAN}{Style.BRIGHT}CryptoTaxPL Configuration Guide")
-    print(f"{Fore.CYAN}{Style.BRIGHT}{'='*80}\n")
+    console.print(Panel.fit(
+        "[bold cyan]CryptoTaxPL Configuration Guide[/]",
+        border_style="cyan"
+    ))
     
     # Environment Variables Section
-    print(f"{Fore.GREEN}{Style.BRIGHT}1. Environment Variables (.env file){Style.RESET_ALL}")
-    print("Create a .env file in the project root directory with the following parameters:\n")
+    env_table = Table(show_header=True, box=box.ROUNDED)
+    env_table.add_column("Variable", style="yellow")
+    env_table.add_column("Description", style="white")
+    env_table.add_column("Example", style="blue")
     
     env_vars = [
         ("KRAKEN_1", "Optional account name", "My Kraken Account"),
@@ -27,54 +31,77 @@ def display_help():
     ]
     
     for var, desc, example in env_vars:
-        print(f"{Fore.YELLOW}{var}{Style.RESET_ALL}: {desc}")
-        print(f"  {Fore.BLUE}Example: {var}={example}{Style.RESET_ALL}\n")
+        env_table.add_row(var, desc, example)
+    
+    console.print(Panel(
+        env_table,
+        title="[bold green]1. Environment Variables (.env file)",
+        border_style="green"
+    ))
     
     # Multiple Accounts Section
-    print(f"{Fore.GREEN}{Style.BRIGHT}2. Multiple Accounts Configuration{Style.RESET_ALL}")
-    print("Configure multiple accounts by incrementing the number:\n")
+    accounts_md = """
+    ## Multiple Accounts Configuration
+    Configure multiple accounts by incrementing the number:
+    ```env
+    KRAKEN_1=First Account
+    KRAKEN_API_KEY_1=first_key
+    KRAKEN_API_SECRET_1=first_secret
     
-    print(f"{Fore.YELLOW}KRAKEN_1{Style.RESET_ALL}=First Account")
-    print(f"{Fore.YELLOW}KRAKEN_API_KEY_1{Style.RESET_ALL}=first_key")
-    print(f"{Fore.YELLOW}KRAKEN_API_SECRET_1{Style.RESET_ALL}=first_secret\n")
-    print(f"{Fore.YELLOW}KRAKEN_2{Style.RESET_ALL}=Second Account")
-    print(f"{Fore.YELLOW}KRAKEN_API_KEY_2{Style.RESET_ALL}=second_key")
-    print(f"{Fore.YELLOW}KRAKEN_API_SECRET_2{Style.RESET_ALL}=second_secret\n")
+    KRAKEN_2=Second Account
+    KRAKEN_API_KEY_2=second_key
+    KRAKEN_API_SECRET_2=second_secret
+    ```
+    """
+    console.print(Panel(
+        Markdown(accounts_md),
+        title="[bold green]2. Multiple Accounts",
+        border_style="green"
+    ))
     
     # Command Line Arguments Section
-    print(f"{Fore.GREEN}{Style.BRIGHT}3. Command Line Arguments{Style.RESET_ALL}")
-    print("Override .env values using command line arguments:\n")
+    cli_table = Table(show_header=True, box=box.ROUNDED)
+    cli_table.add_column("Action", style="yellow")
+    cli_table.add_column("Command", style="blue")
     
     cli_examples = [
-        ("Set tax year", "python main.py --TAX_YEAR 2024"),
-        ("Set settlement day", "python main.py --SETTLEMENT_DAY -1"),
-        ("Override Kraken account", "python main.py --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret")
+        ("Set tax year", "cryptotaxpl --TAX_YEAR 2024"),
+        ("Set settlement day", "cryptotaxpl --SETTLEMENT_DAY -1"),
+        ("Override Kraken account", "cryptotaxpl --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret"),
+        ("Show this help", "cryptotaxpl --help")
     ]
     
     for desc, cmd in cli_examples:
-        print(f"{Fore.YELLOW}{desc}:{Style.RESET_ALL}")
-        print(f"  {Fore.BLUE}{cmd}{Style.RESET_ALL}\n")
+        cli_table.add_row(desc, cmd)
+    
+    console.print(Panel(
+        cli_table,
+        title="[bold green]3. Command Line Arguments",
+        border_style="green"
+    ))
     
     # Configuration Priority Section
-    print(f"{Fore.GREEN}{Style.BRIGHT}4. Configuration Priority{Style.RESET_ALL}")
-    priorities = [
-        "1. Command line arguments (highest priority)",
-        "2. Environment variables from .env file",
-        "3. Default values (lowest priority)"
-    ]
-    
-    for priority in priorities:
-        print(f"{Fore.YELLOW}{priority}{Style.RESET_ALL}")
-    print()
+    priorities_md = """
+    ## Configuration Priority
+    1. Command line arguments (highest priority)
+    2. Environment variables from .env file
+    3. Default values (lowest priority)
+    """
+    console.print(Panel(
+        Markdown(priorities_md),
+        title="[bold green]4. Configuration Priority",
+        border_style="green"
+    ))
     
     # Required Parameters Section
-    print(f"{Fore.GREEN}{Style.BRIGHT}5. Required Parameters{Style.RESET_ALL}")
-    required = [
-        "• TAX_YEAR must be provided either in .env or via command line",
-        "• At least one Kraken account must be configured with API key and secret"
-    ]
-    
-    for req in required:
-        print(f"{Fore.RED}{req}{Style.RESET_ALL}")
-    print()
+    required_md = """
+    ## Required Parameters
+    - 🔴 TAX_YEAR must be provided either in .env or via command line
+    - 🔴 At least one Kraken account must be configured with API key and secret
+    """
+    console.print(Panel(
+        Markdown(required_md),
+        title="[bold green]5. Required Parameters",
+        border_style="red"
+    ))
 
