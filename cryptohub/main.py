@@ -1,4 +1,4 @@
-from .addin_taxpl import process_pit38_tax
+from .addin_taxpl import process_pit38_tax, calculate_pit_38
 from .addin_trades import download_and_save_trades
 from .config import load_config
 from .banner import display_banner
@@ -51,6 +51,9 @@ def main():
     
     # Process PIT-38 tax calculations (handled in the logs)
     process_pit38_tax(config, trades)    
+
+    # Calculate PIT-38
+    pit38 = calculate_pit_38(tax_transactions, config.tax_year, config.previous_year_cost_field36)
     
 if __name__ == "__main__":
     main()

@@ -135,8 +135,8 @@ def process_pit38_tax(config, trades):
     # Save tax transactions model to file
     save_trades_to_excel(tax_transactions)
     
-    # Calculate PIT-38 tax
-    pit38 = calculate_pit_38(tax_transactions, config.tax_year, Decimal('0.00'))
+    # Use the new configuration parameter for previous year costs
+    pit38 = calculate_pit_38(tax_transactions, config.tax_year, config.previous_year_cost_field36)
     
     logger.info(f"PIT-38 Calculations for tax year {config.tax_year}:")
     

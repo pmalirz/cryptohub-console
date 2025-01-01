@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import argparse
 import logging
 from dotenv import load_dotenv
+from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ class Configuration:
     kraken_accounts: Dict[str, KrakenAccount]
     settlement_day: int
     tax_year: int
+    previous_year_cost_field36: Decimal
     
     def hasAnyKrakenAccounts(self) -> bool:
         """
@@ -49,6 +51,8 @@ def load_config() -> Configuration:
                        help='Settlement day for tax calculation (default: -1)')
     parser.add_argument('--TAX_YEAR', type=int, 
                        help='Tax year for calculations (required)')
+    parser.add_argument('--PREVIOUS_YEAR_COST_FIELD36', type=str, 
+                       help='Previous year cost from field 36 (default: 0.00)')
     
     args = parser.parse_args()
     args_dict = {k: v for k, v in vars(args).items() if v is not None}
@@ -57,7 +61,8 @@ def load_config() -> Configuration:
     config = {
         "krakenAccounts": {},
         "settlementDay": int(os.getenv('SETTLEMENT_DAY', '-1')),
-        "taxYear": int(os.getenv('TAX_YEAR', '0'))
+        "taxYear": int(os.getenv('TAX_YEAR', '0')),
+        "previousYearCostField36": Decimal(os.getenv('PREVIOUS_YEAR_COST_FIELD36', '0.00'))
     }
     
     # Override with command line arguments if provided
@@ -65,6 +70,8 @@ def load_config() -> Configuration:
         config['settlementDay'] = args_dict['SETTLEMENT_DAY']
     if args_dict.get('TAX_YEAR') is not None:
         config['taxYear'] = args_dict['TAX_YEAR']
+    if args_dict.get('PREVIOUS_YEAR_COST_FIELD36') is not None:
+        config['previousYearCostField36'] = Decimal(args_dict['PREVIOUS_YEAR_COST_FIELD36'])
         
     # Track unique names and API keys
     used_names = set()
@@ -123,5 +130,6 @@ def load_config() -> Configuration:
     return Configuration(
         kraken_accounts=kraken_accounts,
         settlement_day=config['settlementDay'],
-        tax_year=config['taxYear']
+        tax_year=config['taxYear'],
+        previous_year_cost_field36=config['previousYearCostField36']
     )
