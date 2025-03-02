@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_tax_transactions(
-    transactions: list[Transaction], 
+    transactions: list[Transaction],
     rates_by_currency: dict[str, dict[datetime.date, ExchangeRate]],
     settlement_day: int
 ) -> list[TransactionForTax]:

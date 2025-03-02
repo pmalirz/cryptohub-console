@@ -22,4 +22,4 @@ def load_sample_transactions(csv_path: str) -> list[Transaction]:
                 fee=Decimal(row['fee']),
                 trade_type=row['trade_type']
             ))
-    return 
+    return

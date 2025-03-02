@@ -54,8 +54,8 @@ def test_get_exchange_rates_multiple_currencies(nbp_client):
     # Assert
     assert all(rates for rates in results.values()), "Should have rates for all currencies"
     assert all(
-        rate.quote_currency == "PLN" 
-        for rates in results.values() 
+        rate.quote_currency == "PLN"
+        for rates in results.values()
         for rate in rates.values()
     )
 
@@ -64,7 +64,7 @@ def test_get_rates_for_transactions_weekend_handling(nbp_client, sample_transact
     """Test handling of weekend dates when no rates are available."""
     # Filter transactions that occurred on weekends
     weekend_transactions = [
-        tx for tx in sample_transactions 
+        tx for tx in sample_transactions
         if tx.timestamp.date().weekday() >= 5  # Saturday = 5, Sunday = 6
     ]
 

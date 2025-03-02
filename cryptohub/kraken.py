@@ -6,12 +6,13 @@ from .transaction import Pair, Transaction
 
 logger = logging.getLogger(__name__)
 
+
 class KrakenAPI:
     def __init__(self, key: str, secret: str, platform_name: str = "Kraken", *, filter_quote_assets: set[str] | None = None):
         # Use the User class from the new sdk for private endpoints.
         self.client = User(key, secret)
         self.platform_name = platform_name
-        self.filter_quote_assets = filter_quote_assets 
+        self.filter_quote_assets = filter_quote_assets
 
     def get_trades_history(self, offset=0):
         # Use the trades_history method with an offset.

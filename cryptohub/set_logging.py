@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
+
 def setup_logging():
     # Create logs directory if it doesn't exist
     logs_dir = Path("logs")
