@@ -15,7 +15,16 @@ def nbp_client():
 @pytest.fixture
 def sample_transactions():
     csv_path = Path(__file__).parent / 'sample_transactions.csv'
-    return load_sample_transactions(str(csv_path))
+    if not csv_path.exists():
+        pytest.fail(f"Sample transactions file not found: {csv_path}")
+
+    transactions = load_sample_transactions(str(csv_path))
+    if not transactions:
+        pytest.fail(f"No transactions loaded from {csv_path}")
+
+    # Log the number of transactions for debugging
+    print(f"Loaded {len(transactions)} transactions from {csv_path}")
+    return transactions
 
 
 def test_get_exchange_rates_date_range(nbp_client):
@@ -60,7 +69,7 @@ def test_get_exchange_rates_multiple_currencies(nbp_client):
     )
 
 
-def test_get_rates_for_transactions_weekend_handling(nbp_client, sample_transactions):
+def test_get_rates_for_transactions_weekend_handling(nbp_client, sample_transactions: list[Transaction]):
     """Test handling of weekend dates when no rates are available."""
     # Filter transactions that occurred on weekends
     weekend_transactions = [
