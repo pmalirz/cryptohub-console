@@ -1,0 +1,37 @@
+[flake8]
+# Exclude all directories and files except tests/ and cryptohub/
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    venv,
+    .env,
+    .vscode,
+    .idea,
+    *.pyc,
+    logs,
+    *.egg-info,
+    .pytest_cache
+
+# Focus only on these directories
+filename = 
+    ./tests/*.py
+    ./tests/**/*.py
+    ./cryptohub/*.py
+    ./cryptohub/**/*.py
+
+# Ignore some common errors
+# E501: Line too long
+# W503: Line break before binary operator
+# E203: Whitespace before ':'
+ignore =
+    E501,
+    W503,
+    E203 
+
+# Maximum line length
+max-line-length = 120
+
+# Maximum complexity
+max-complexity = 10

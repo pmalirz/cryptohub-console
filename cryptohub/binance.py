@@ -12,6 +12,7 @@ from .transaction import Pair, Transaction
 
 logger = logging.getLogger(__name__)
 
+
 class BinanceAPI:
     def __init__(self, key: str, secret: str, platform_name: str = "Binance", *, pair_pattern: str | None = None):
         """
@@ -82,7 +83,7 @@ class BinanceAPI:
         qty = Decimal(str(trade["qty"]))
         price = Decimal(str(trade["price"]))
         cost = qty * price
-        
+
         return Transaction(
             platform=self.platform_name,
             trade_id=str(trade["id"]),
@@ -103,7 +104,7 @@ class BinanceAPI:
         last_trade_id = None
         limit = 1000
         retries = 0
-        
+
         while retries < self.max_retries:
             try:
                 while True:
@@ -114,18 +115,18 @@ class BinanceAPI:
                         'startTime': start_time
                     }
                     trades = self.client.get_my_trades(**{k: v for k, v in params.items() if v is not None})
-                    
+
                     if not trades:
                         break
-                        
+
                     symbol_txns.extend(trades)
                     last_trade_id = trades[-1]["id"]
                     time.sleep(self.rate_limit_delay)
-                    
+
                     if len(trades) < limit:
                         break
                 return symbol_txns
-                
+
             except BinanceAPIException as e:
                 if e.code == -1003:
                     retries += 1
@@ -166,13 +167,13 @@ class BinanceAPI:
                 description="Downloading Binance trades ✨...",
                 total=total_pairs
             )
-            
+
             with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
                 future_to_symbol = {
-                    executor.submit(process_symbol, symbol): symbol 
+                    executor.submit(process_symbol, symbol): symbol
                     for symbol in self.pair_mapping.keys()
                 }
-                
+
                 for future in concurrent.futures.as_completed(future_to_symbol):
                     symbol = future_to_symbol[future]
                     try:
@@ -190,6 +191,7 @@ class BinanceAPI:
             f"{', Filtered by pattern: ' + str(self.pair_pattern.pattern) if self.pair_pattern else ''}[/bold green]"
         )
         return self.transactions
+
 
 # Usage example
 if __name__ == "__main__":

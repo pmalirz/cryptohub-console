@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 
+
 @dataclass
 class Transaction:
     platform: str            # e.g. "Kraken", "Binance"
@@ -16,18 +17,21 @@ class Transaction:
     fee: Decimal             # Fee paid
     trade_type: str          # "BUY" or "SELL"
 
+
 @dataclass
 class Pair:
     symbol: str              # Trading pair symbol, e.g. "BTCEUR"
     base_currency: str       # Base currency (e.g. "BTC")
     quote_currency: str      # Quote currency (e.g. "EUR")
 
+
 @dataclass
 class ExchangeRate:
-    rate_date: datetime.date # Effective date of the rate
+    rate_date: datetime.date  # Effective date of the rate
     rate: Decimal            # Exchange rate (to PLN)
     base_currency: str       # Currency for which rate applies
     quote_currency: str      # Always "PLN" for tax conversion
+
 
 @dataclass
 class TransactionForTax:

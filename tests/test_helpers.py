@@ -3,6 +3,7 @@ from decimal import Decimal
 from datetime import datetime
 from cryptohub.transaction import Transaction
 
+
 def load_sample_transactions(csv_path: str) -> list[Transaction]:
     transactions = []
     with open(csv_path, 'r') as f:

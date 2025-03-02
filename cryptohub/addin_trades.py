@@ -31,14 +31,14 @@ def _create_dataframe(trades: list[Transaction]) -> pd.DataFrame:
             'Type': str(trade.trade_type).upper(),
         }
         df_records.append(record)
-    
+
     df = pd.DataFrame(df_records)
-    
+
     # Set numeric columns type explicitly
     numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee']
     for col in numeric_columns:
         df[col] = pd.to_numeric(df[col])
-    
+
     return df
 
 
@@ -53,58 +53,58 @@ def save_trades_to_excel(trades: List[Transaction], filename: str = "trades.xlsx
     filename = f"{base}_{timestamp}.{ext}"
 
     df = _create_dataframe(trades)
-    
+
     # Create Excel writer
     writer = pd.ExcelWriter(filename, engine='xlsxwriter')
     df.to_excel(writer, sheet_name='Trades', index=False)
-    
+
     # Get workbook and worksheet
     workbook = writer.book
     worksheet = writer.sheets['Trades']
-    
+
     # Define formats with Polish locale (comma as decimal separator)
     buy_format = workbook.add_format({'bg_color': '#C6EFCE'})  # Light green
     sell_format = workbook.add_format({'bg_color': '#FFC7CE'})  # Light red
-    
+
     # Corrected number format: thousand separator (,) and 12 decimal places
     number_format = workbook.add_format({'num_format': '#,##0.000000000000'})  # US-style: 92,447,016.604180000000
-        
+
     # Set numeric format for specific columns
     numeric_columns = ['Price', 'Volume', 'Total Cost', 'Fee']
     for col_name in numeric_columns:
         col_idx = df.columns.get_loc(col_name)
         worksheet.set_column(col_idx, col_idx, None, number_format)
-    
+
     # Apply conditional formatting based on trade type
     type_col = df.columns.get_loc('Type') + 1  # Excel 1-based index
-    worksheet.conditional_format(1, 0, len(df), len(df.columns)-1, {
+    worksheet.conditional_format(1, 0, len(df), len(df.columns) - 1, {
         'type': 'formula',
         'criteria': f'=${chr(64+type_col)}2="BUY"',
         'format': buy_format
     })
-    worksheet.conditional_format(1, 0, len(df), len(df.columns)-1, {
+    worksheet.conditional_format(1, 0, len(df), len(df.columns) - 1, {
         'type': 'formula',
         'criteria': f'=${chr(64+type_col)}2="SELL"',
         'format': sell_format
     })
-    
+
     # Auto-adjust columns width
     for idx, col in enumerate(df.columns):
         series = df[col]
         max_len = max(series.astype(str).map(len).max(), len(str(series.name))) + 1
         worksheet.set_column(idx, idx, max_len)
-    
+
     writer.close()
-    
+
     logger.info(f"Saved trades to {filename}. You can open the file to make your own analysis and calculations.")
-    
+
     # Use Rich Panel to notify the user with a friendly message
     console.print(f"💾 Saved trades to [blue]{filename}[/blue].")
 
 
 def download_and_save_trades(config: Configuration):
     console.rule("[bold blue]Downloading Trades[/bold blue]")
-    
+
     trades = []
     # Download trades from Kraken accounts.
     for account_id, account in config.kraken_accounts.items():
@@ -124,5 +124,5 @@ def download_and_save_trades(config: Configuration):
 
     # Save trades model to file.
     save_trades_to_excel(trades)
-    
+
     return trades
