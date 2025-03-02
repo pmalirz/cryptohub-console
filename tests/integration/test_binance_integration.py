@@ -2,7 +2,6 @@ import os
 import pytest
 import time
 from cryptohub.binance import BinanceAPI
-from cryptohub.config import load_config
 
 # Skip all tests in this file if SKIP_BINANCE_TESTS is set
 pytestmark = pytest.mark.skipif(
@@ -10,17 +9,19 @@ pytestmark = pytest.mark.skipif(
     reason="Binance integration tests disabled via SKIP_BINANCE_TESTS env var"
 )
 
+
 @pytest.fixture
 def binance_api():
     key = os.getenv("BINANCE_API_KEY_1", "")
     secret = os.getenv("BINANCE_API_SECRET_1", "")
-    pair_pattern = "^SOLEUR$" # Remember that this require the pair to be exactly SOLEUR on the Binance exchange (this is set up via env / GitHub Actions).
+    pair_pattern = "^SOLEUR$"  # Remember that this require the pair to be exactly SOLEUR on the Binance exchange (this is set up via env / GitHub Actions).
     
     # Skip individual tests if credentials are missing
     if not key or not secret:
         pytest.skip("Binance API credentials not provided")
         
     return BinanceAPI(key, secret, pair_pattern=pair_pattern)
+
 
 def test_download_asset_pairs_integration(binance_api):
     pairs = binance_api.download_asset_pairs()
@@ -31,6 +32,7 @@ def test_download_asset_pairs_integration(binance_api):
     # Verify that the mapping contains the SOLEUR pair.
     # Note: Adjust the key as needed if your desired pair name is different.
     assert "SOLEUR" in pairs, "Expected to find the SOLEUR pair in the exchange info."
+    
 
 def test_download_all_orders_integration(binance_api):
     transactions = binance_api.download_all_trades()
@@ -46,6 +48,7 @@ def test_download_all_orders_integration(binance_api):
             assert txn.trade_id, "Transaction trade_id should not be empty."
             # The volume should be positive.
             assert txn.volume > 0, "Transaction volume should be positive."
+
 
 def test_download_all_trades_timing(binance_api):
     start_time = time.time()

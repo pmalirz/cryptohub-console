@@ -9,16 +9,16 @@ A command-line tool for crypto traders to:
 
 ## Features
 
-- 🔄 Automatic trade history download from Kraken API
-- 💱 NBP exchange rate integration
-- 📊 Export to JSON and CSV formats
+- 🔄 Automatic trade history download from Kraken and Binance
+- 💱 NBP exchange rate integration (for Poland Tax)
+- 📊 Save downloaded trades and tax calculations as Excel documents
+- ✏️ Possibility to modify or compose your own trade files for Tax calculation
 - 🔒 Secure API key handling
 
 ## Requirements
 
 - Python 3.11
-- Kraken API credentials
-- Internet connection for Kraken and NBP data
+- Internet connection for (Kraken, Binance, NBP)
 
 ### Managing Python with Scoop
 
