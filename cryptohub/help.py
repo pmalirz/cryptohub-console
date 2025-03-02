@@ -2,7 +2,6 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.markdown import Markdown
-from rich.padding import Padding
 from rich import box
 
 console = Console()
@@ -48,7 +47,7 @@ def display_help():
     KRAKEN_1=First Account
     KRAKEN_API_KEY_1=first_key
     KRAKEN_API_SECRET_1=first_secret
-    
+
     KRAKEN_2=Second Account
     KRAKEN_API_KEY_2=second_key
     KRAKEN_API_SECRET_2=second_secret

@@ -437,7 +437,7 @@ def process_pit38_tax(config: Configuration) -> dict:
         TimeElapsedColumn(),
         transient=True
     ) as progress:
-        task = progress.add_task("Downloading NBP rates for all trades...📈", total=None)
+        progress.add_task("Downloading NBP rates for all trades...📈", total=None)
         rates = nbp.get_rates_for_transactions(transactions=trades)
 
     logger.info("NBP downloaded successfully")
