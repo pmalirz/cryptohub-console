@@ -26,6 +26,9 @@ def display_help():
         ("KRAKEN_1", "Optional account name", "My Kraken Account"),
         ("KRAKEN_API_KEY_1", "Required API key", "your_api_key_here"),
         ("KRAKEN_API_SECRET_1", "Required API secret", "your_api_secret_here"),
+        ("BINANCE_1", "Optional account name", "My Binance Account"),
+        ("BINANCE_API_KEY_1", "Required API key", "your_binance_api_key"),
+        ("BINANCE_API_SECRET_1", "Required API secret", "your_binance_api_secret"),
         ("SETTLEMENT_DAY", "Settlement day for tax calculations (default: -1)", "-1"),
         ("TAX_YEAR", "Required tax year", "2024")
     ]
@@ -44,13 +47,17 @@ def display_help():
     ## Multiple Accounts Configuration
     Configure multiple accounts by incrementing the number:
     ```env
-    KRAKEN_1=First Account
+    KRAKEN_1=First Kraken Account
     KRAKEN_API_KEY_1=first_key
     KRAKEN_API_SECRET_1=first_secret
 
-    KRAKEN_2=Second Account
+    KRAKEN_2=Second Kraken Account
     KRAKEN_API_KEY_2=second_key
     KRAKEN_API_SECRET_2=second_secret
+
+    BINANCE_1=First Binance Account
+    BINANCE_API_KEY_1=first_binance_key
+    BINANCE_API_SECRET_1=first_binance_secret
     ```
     """
     console.print(Panel(
@@ -68,6 +75,7 @@ def display_help():
         ("Set tax year", "cryptotaxpl --TAX_YEAR 2024"),
         ("Set settlement day", "cryptotaxpl --SETTLEMENT_DAY -1"),
         ("Override Kraken account", "cryptotaxpl --KRAKEN_1 \"My Account\" --KRAKEN_API_KEY_1 key --KRAKEN_API_SECRET_1 secret"),
+        ("Override Binance account", "cryptotaxpl --BINANCE_1 \"My Account\" --BINANCE_API_KEY_1 key --BINANCE_API_SECRET_1 secret"),
         ("Show this help", "cryptotaxpl --help")
     ]
 
@@ -97,7 +105,7 @@ def display_help():
     required_md = """
     ## Required Parameters
     - 🔴 TAX_YEAR must be provided either in .env or via command line
-    - 🔴 At least one Kraken account must be configured with API key and secret
+    - 🔴 At least one exchange account (Kraken or Binance) must be configured with API key and secret
     """
     console.print(Panel(
         Markdown(required_md),
