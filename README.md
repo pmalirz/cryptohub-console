@@ -18,6 +18,20 @@ A command-line tool for crypto traders to:
 - 🔒 Secure API key handling (stored locally in config files)
 - 🗓️ Full tax year transaction processing
 
+## Quick Start - Download & Run
+
+For those who just want to use the software without any setup:
+
+1. Go to the [Releases](https://github.com/yourusername/cryptotaxpl/releases) tab
+2. Download the newest release (cryptohub.exe)
+3. No Python installation or manual builds are required
+4. Create a `.env` file next to the executable with your configuration (see [Configuration](#configuration))
+5. Remember to configure at least one connection to Kraken or Binance in your `.env` file (you can have multiple connections to the same provider for different accounts)
+   - **IMPORTANT**: For security, create API keys with **READ-ONLY permissions**. The application only reads your trading history and does not perform any trades or modifications to your account.
+   - [How to create a read-only Kraken API key](https://support.kraken.com/hc/en-us/articles/360000919966-How-to-generate-an-API-key-pair-)
+   - [How to create a read-only Binance API key](https://www.binance.com/en/support/faq/how-to-create-api-360002502072)
+6. Run the executable from Command Prompt or PowerShell
+
 ## Requirements
 
 - Python 3.11
