@@ -13,7 +13,8 @@ A command-line tool for crypto traders to:
 - 💱 NBP exchange rate integration (for Poland Tax)
 - 📊 Save downloaded trades and tax calculations as Excel documents
 - ✏️ Possibility to modify or compose your own trade files for Tax calculation
-- 🔒 Secure API key handling
+- 🔒 Secure API key handling (stored locally in config files)
+- 🗓️ Full tax year transaction processing
 
 ## Requirements
 
