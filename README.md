@@ -22,7 +22,7 @@ A command-line tool for crypto traders to:
 
 For those who just want to use the software without any setup:
 
-1. Go to the [Releases](https://github.com/yourusername/cryptotaxpl/releases) tab
+1. Go to the [Releases](https://github.com/pmalirz/cryptohub-console/releases) tab
 2. Download the newest release (cryptohub.exe)
 3. No Python installation or manual builds are required
 4. Create a `.env` file next to the executable with your configuration (see [Configuration](#configuration))
