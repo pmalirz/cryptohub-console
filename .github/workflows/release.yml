@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*.*.*'
 
+# Add permissions block for allowing release creation
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
