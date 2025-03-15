@@ -14,7 +14,6 @@ build/
 venv/
 env/
 myenv/
-.env
 
 # IDE settings
 .vscode/
@@ -28,7 +27,7 @@ logs/
 *.bak
 
 # Environment variables and secrets
-.env
+/.env
 *.key
 *.pem
 
