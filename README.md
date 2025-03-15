@@ -130,11 +130,6 @@ TAX_YEAR=2024                         # Required tax year
 
 # Tax PL Config - Cost moved from the previous year (default: 0.00)
 PREVIOUS_YEAR_COST_FIELD36=0
-
-# Filtering trades based on quote asset:
-# Provide a comma separated list of quote assets (e.g., EUR,USD).
-# If empty, no filtering will be applied.
-FILTER_QUOTE_ASSETS=EUR,USD
 ```
 
 ### Command Line Arguments

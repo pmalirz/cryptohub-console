@@ -91,8 +91,6 @@ def get_base_config(args_dict):
         config['taxYear'] = args_dict['TAX_YEAR']
     if args_dict.get('PREVIOUS_YEAR_COST_FIELD36') is not None:
         config['previousYearCostField36'] = Decimal(args_dict['PREVIOUS_YEAR_COST_FIELD36'])
-    if args_dict.get('FILTER_QUOTE_ASSETS') is not None:
-        config['filterQuoteAssets'] = args_dict['FILTER_QUOTE_ASSETS']
 
     return config
 

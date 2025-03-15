@@ -108,7 +108,6 @@ def download_and_save_trades(config: Configuration):
     trades = []
     # Download trades from Kraken accounts.
     for account_id, account in config.kraken_accounts.items():
-        # Pass filter_quote_assets from configuration.
         kraken = KrakenAPI(account.api_key, account.api_secret, account.name)
         account_trades = kraken.download_all_trades()
         trades.extend(account_trades)
