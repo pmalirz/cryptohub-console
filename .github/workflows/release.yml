@@ -31,6 +31,16 @@ jobs:
       - name: Build executable
         run: pyinstaller main.spec
         
+      - name: Create ZIP file
+        run: |
+          $version = "${{ github.ref_name }}"
+          $zipName = "cryptohub-$version.zip"
+          New-Item -ItemType Directory -Path release-files -Force
+          Copy-Item dist/cryptohub.exe -Destination release-files/
+          Copy-Item docs/.env -Destination release-files/
+          Compress-Archive -Path release-files/* -DestinationPath $zipName
+        shell: pwsh
+        
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -38,6 +48,7 @@ jobs:
           files: |
             dist/cryptohub.exe
             docs/.env
+            cryptohub-${{ github.ref_name }}.zip
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
