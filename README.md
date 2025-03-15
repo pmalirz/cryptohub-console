@@ -4,7 +4,7 @@
 
 A command-line tool for crypto traders to:
 
-- Download trading history from Kraken exchange
+- Download trading history from Kraken and Binance exchanges
 - Fetch NBP (National Bank of Poland) exchange rates
 - Calculate tax-relevant transaction data
 - Export results to JSON and CSV formats
