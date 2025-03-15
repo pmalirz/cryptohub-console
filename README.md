@@ -1,6 +1,6 @@
 # CryptoHub (Console Tool)
 
-![CryptoHub Logo](docs/cryptohub.png)
+<img src="docs/cryptohub.png" alt="CryptoHub Logo" width="150">
 
 A command-line tool for crypto traders to:
 
