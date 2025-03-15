@@ -2,7 +2,7 @@
 
 ## Version 1.0, March 2025
 
-Copyright (C) 2025 Przemyslaw Malirz (p.malirz@gmail.com)
+Copyright (C) 2025 Przemyslaw Malirz (<p.malirz@gmail.com>)
 
 ## Terms and Conditions
 
@@ -55,5 +55,4 @@ This license grants permission to use, modify, and contribute to the CryptoHub p
 
 By using this software, you agree to the terms of this license. If you do not agree, you must discontinue any use of CryptoHub immediately.
 
-For any inquiries, contact: **p.malirz@gmail.com**.
-
+For any inquiries, contact: **<p.malirz@gmail.com>**.
