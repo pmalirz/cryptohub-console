@@ -30,7 +30,11 @@ For those who just want to use the software without any setup:
    - **IMPORTANT**: For security, create API keys with **READ-ONLY permissions**. The application only reads your trading history and does not perform any trades or modifications to your account.
    - [How to create a read-only Kraken API key](https://support.kraken.com/hc/en-us/articles/360000919966-How-to-generate-an-API-key-pair-)
    - [How to create a read-only Binance API key](https://www.binance.com/en/support/faq/how-to-create-api-360002502072)
-6. Run the executable from Command Prompt or PowerShell
+6. Run the executable from Command Prompt or PowerShell:
+
+```cmd
+cryptohub.exe /?
+```
 
 ## Requirements
 
