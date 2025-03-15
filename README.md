@@ -1,5 +1,7 @@
 # CryptoHub (Console Tool)
 
+![CryptoHub Logo](docs/cryptohub.png)
+
 A command-line tool for crypto traders to:
 
 - Download trading history from Kraken exchange
