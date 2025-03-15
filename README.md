@@ -34,6 +34,8 @@ For those who just want to use the software without any setup:
 
 ## Requirements
 
+> The following requirements are for developers who would like to download the repository and build/run manually or contribute to the project. If you just want to use the tool, refer to the [Quick Start - Download & Run](#quick-start---download--run) section.
+
 - Python 3.11
 - Internet connection for (Kraken, Binance, NBP)
 
