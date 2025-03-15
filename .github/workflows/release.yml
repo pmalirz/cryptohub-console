@@ -35,7 +35,9 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/cryptohub.exe
+          files: |
+            dist/cryptohub.exe
+            docs/.env
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
