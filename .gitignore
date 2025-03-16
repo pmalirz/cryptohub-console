@@ -23,7 +23,10 @@ myenv/
 # Project specific
 *.log
 logs/
+# Exclude all xlsx files except trade.xlsx and taxpl.xlsx
 /*.xlsx
+!trade.xlsx
+!taxpl.xlsx
 *.bak
 
 # Environment variables and secrets

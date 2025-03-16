@@ -36,6 +36,14 @@ For those who just want to use the software without any setup:
 cryptohub.exe /?
 ```
 
+<video width="100%" controls poster="docs/cryptohub-console-screen.png">
+  <source src="docs/cryptohub-console-navi.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+> ℹ️ **Note:** When you download trades or calculate taxes, the tool generates Excel (.xlsx) files in your current working directory. These files contain all transaction data and tax calculations for easy review and record keeping.
+
+
 ## Requirements
 
 > The following requirements are for developers who would like to download the repository and build/run manually or contribute to the project. If you just want to use the tool, refer to the [Quick Start - Download & Run](#quick-start---download--run) section.
