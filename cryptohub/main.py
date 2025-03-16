@@ -64,23 +64,45 @@ def handle_download_trades(config):
         console.print("[red]No accounts available to download trades from![/red]")
         return
 
-    # Show account selection with checkbox (multi-select) and Back option
-    console.print("\n[bold yellow]Select accounts to download:[/bold yellow]")
-    choices = ["Back to Main Menu", "All Accounts"] + account_choices
-    chosen = questionary.checkbox(
-        "Select accounts (space to toggle, enter to confirm):",
-        choices=choices,
+    # First, show a simple selection menu
+    console.print("\n[bold yellow]Download trades options:[/bold yellow]")
+    selection = questionary.select(
+        "Choose an option:",
+        choices=[
+            "Back to Main Menu",
+            "All Accounts",
+            "Select Specific Accounts",
+        ],
         style=questionary.Style([
             ('selected', 'bg:blue fg:white'),
-            ('checkbox', 'fg:yellow'),
             ('pointer', 'fg:blue'),
         ])
     ).ask()
 
-    # Check if user wants to go back or no selection made
-    if not chosen or "Back to Main Menu" in chosen:
+    if selection == "Back to Main Menu" or selection is None:
         logger.debug("User chose to return to main menu")
         return
+
+    chosen = []
+    if selection == "All Accounts":
+        chosen = ["All Accounts"]
+    elif selection == "Select Specific Accounts":
+        # Show account selection with checkbox (multi-select)
+        console.print("\n[bold yellow]Select accounts to download:[/bold yellow]")
+        chosen = questionary.checkbox(
+            "Select accounts (space to toggle, enter to confirm):",
+            choices=account_choices,
+            style=questionary.Style([
+                ('selected', 'bg:blue fg:white'),
+                ('checkbox', 'fg:yellow'),
+                ('pointer', 'fg:blue'),
+            ])
+        ).ask()
+
+        # If user didn't select any accounts, return to main menu
+        if not chosen:
+            console.print("[yellow]No accounts selected, returning to main menu.[/yellow]")
+            return
 
     # Filter configuration to selected accounts
     working_config = filter_selected_accounts(config, chosen)
