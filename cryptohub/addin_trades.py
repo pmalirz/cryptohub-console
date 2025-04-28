@@ -110,18 +110,28 @@ def download_and_save_trades(config: Configuration):
     for account_id, account in config.kraken_accounts.items():
         kraken = KrakenAPI(account.api_key, account.api_secret, account.name)
         account_trades = kraken.download_all_trades()
-        trades.extend(account_trades)
-        logger.info(f"Trades downloaded successfully for Kraken account: {account.name if account.name else 'Unnamed Account ' + account_id}")
+        if account_trades:
+            trades.extend(account_trades)
+            logger.info(f"Trades downloaded successfully for Kraken account: {account.name if account.name else 'Unnamed Account ' + account_id}")
+        else:
+            logger.info(f"No trades found for Kraken account: {account.name if account.name else 'Unnamed Account ' + account_id}")
 
     # Download trades from Binance accounts.
     from .binance import BinanceAPI  # Import BinanceAPI here.
     for account_id, account in config.binance_accounts.items():
         binance = BinanceAPI(account.api_key, account.api_secret, account.name, pair_pattern=account.pair_pattern)
         account_trades = binance.download_all_trades()
-        trades.extend(account_trades)
-        logger.info(f"Trades downloaded successfully for Binance account: {account.name if account.name else 'Unnamed Account ' + account_id}")
+        if account_trades:
+            trades.extend(account_trades)
+            logger.info(f"Trades downloaded successfully for Binance account: {account.name if account.name else 'Unnamed Account ' + account_id}")
+        else:
+            logger.info(f"No trades found for Binance account: {account.name if account.name else 'Unnamed Account ' + account_id}")
 
-    # Save trades model to file.
-    save_trades_to_excel(trades)
+    # Save trades model to file if any trades were found.
+    if trades:
+        save_trades_to_excel(trades)
+    else:
+        console.print("[yellow]No trades found from any accounts.[/yellow]")
+        logger.info("No trades were found from any configured accounts.")
 
     return trades

@@ -8,7 +8,7 @@ from .config import load_config
 from .banner import display_banner
 from .help import display_help
 from . import set_logging
-from .menu import interactive_menu
+from .menu import MenuManager
 
 # Initialize colorama and logging
 init(autoreset=True)
@@ -17,12 +17,16 @@ logger = logging.getLogger(__name__)
 console = Console()
 
 
-def main():
+def main(argv=None, exit_fn=sys.exit):
+    """Main entry point with injectable dependencies for testing."""
+    if argv is None:
+        argv = sys.argv
+
     display_banner()
 
-    if len(sys.argv) == 2 and sys.argv[1] in ['/?', '--help', '-h']:
+    if len(argv) == 2 and argv[1] in ['/?', '--help', '-h']:
         display_help()
-        return
+        return 0
 
     try:
         config = load_config()
@@ -34,18 +38,22 @@ def main():
                 "Please refer to /? help for details on setting up your credentials."
             )
             console.print(Panel(error_message, title="Configuration Error", border_style="red"))
-            return
+            return 1
 
-        interactive_menu(config)
+        # Use MenuManager for interactive menu
+        menu_manager = MenuManager(console=console, exit_fn=exit_fn)
+        menu_manager.interactive_menu(config)
+        return 0
 
     except KeyboardInterrupt:
         console.print("\n[yellow]Program terminated by user.[/yellow]")
-        sys.exit(0)
+        return 0
     except Exception as e:
         logger.exception("An unexpected error occurred")
         console.print(f"[red]Error: {str(e)}[/red]")
-        sys.exit(1)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)
