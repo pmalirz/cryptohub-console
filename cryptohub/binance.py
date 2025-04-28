@@ -32,30 +32,30 @@ class BinanceAPI:
         self.shutdown_event = threading.Event()  # Event to signal worker threads to terminate
         self.console = Console()
         self.transactions = []
-        # Initial time sync with a larger buffer
-        try:
-            self.sync_time(buffer_ms=2000)
-        except BinanceAPIException as e:
-            if e.code == -1021:
-                self.console.print("[bold red]Timestamp synchronization error. Cannot proceed with Binance processing.[/bold red]")
-                self.abort_processing = True
-            else:
-                raise
+
+        self.sync_time(buffer_ms=500)
         self.pair_mapping = {} if self.abort_processing else self.download_asset_pairs()
 
     def sync_time(self, buffer_ms=2000):
         """
-        Synchronize local time with Binance server time
-
-        :param buffer_ms: Buffer in milliseconds to subtract from the offset to ensure
-                         our timestamps are never ahead of server time
-        :return: True if successful
-        :raises: BinanceAPIException if synchronization fails
+        Synchronize local time with Binance server time.
+        :param buffer_ms: ms to subtract so we never run ahead of the server.
         """
-        server_time = self.client.get_server_time()["serverTime"]
-        local_time = int(time.time() * 1000)
-        self.client._timestamp_offset = server_time - local_time - buffer_ms
-        logger.debug(f"Time synchronized with Binance. Offset: {self.client._timestamp_offset}ms (buffer: {buffer_ms}ms)")
+        resp = self.client.get_server_time()
+
+        if isinstance(resp, dict):
+            server_ts = resp.get("serverTime")
+        else:
+            server_ts = resp
+        if server_ts is None:
+            raise BinanceAPIException("Unexpected get_server_time() response", resp)
+
+        local_ts = int(time.time() * 1000)
+        # subtract buffer to avoid ever running ahead
+        offset = server_ts - local_ts - buffer_ms
+        # if offset is wildly negative, your clock is really off
+        logger.debug(f"binance server={server_ts}, local={local_ts}, offset={offset}ms")
+        self.client.timestamp_offset = offset
         return True
 
     def download_asset_pairs(self):
