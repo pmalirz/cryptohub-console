@@ -110,8 +110,8 @@ def load_kraken_accounts(config, args_dict):
         if not key or not secret:
             break
 
-        # Use default name if none provided
-        actual_name = name or f'Kraken{i}'
+        # Allow CLI override of the account name, then .env, then fallback
+        actual_name = args_dict.get(f'KRAKEN_{i}', name) or f'Kraken{i}'
         actual_key = args_dict.get(f'KRAKEN_API_KEY_{i}', key)
 
         # Check for duplicate name
