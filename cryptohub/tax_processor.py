@@ -31,6 +31,19 @@ def create_tax_transactions(
 
     for transaction in transactions:
         if transaction.quote_currency == "PLN":
+            # no FX needed for PLN → rate = 1.00
+            rate = ExchangeRate(
+                rate_date=transaction.timestamp.date(),
+                rate=Decimal("1.00"),
+                base_currency=transaction.quote_currency,
+                quote_currency="PLN"
+            )
+            tax_transactions.append(
+                TransactionForTax(
+                    transaction=transaction,
+                    tax_exchange_rate=rate
+                )
+            )
             continue
 
         currency_rates = rates_by_currency.get(transaction.quote_currency)
