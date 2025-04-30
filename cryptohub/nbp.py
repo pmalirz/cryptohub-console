@@ -63,17 +63,6 @@ class NBPClient:
     def get_rates_for_transactions(self, transactions: List[Transaction]) -> Dict[str, Dict[datetime.date, ExchangeRate]]:
         """
         Gets exchange rates for all currencies in transactions within their date ranges.
-
-        Args:
-            transactions: List of transactions to get rates for
-
-        Returns:
-            Dictionary mapping currency to date-rate mappings:
-            {
-                'EUR': { date1: ExchangeRate1, date2: ExchangeRate2, ... },
-                'USD': { date1: ExchangeRate1, date2: ExchangeRate2, ... },
-                ...
-            }
         """
         # Group transactions by quote currency and find date ranges
         currency_dates = defaultdict(list)
@@ -81,19 +70,32 @@ class NBPClient:
             if tx.quote_currency != "PLN":
                 currency_dates[tx.quote_currency].append(tx.timestamp.date())
 
-        # Get rates for each currency's date range
         rates_by_currency: Dict[str, Dict[datetime.date, ExchangeRate]] = {}
 
         for currency, dates in currency_dates.items():
-            min_date = min(dates) - timedelta(days=7)  # Add 7-day margin
+            min_date = min(dates) - timedelta(days=7)  # Add 7‑day margin
             max_date = max(dates)
-
             logger.info(f"Getting {currency} rates from {min_date} to {max_date}")
-            rates = self.get_exchange_rates(currency, min_date, max_date)
 
-            if rates:
-                rates_by_currency[currency] = rates
+            all_rates: Dict[datetime.date, ExchangeRate] = {}
+            window_days = 367
+            chunk_start = min_date
+
+            while chunk_start <= max_date:
+                chunk_end = min(chunk_start + timedelta(days=window_days - 1), max_date)
+                logger.debug(f"Fetching {currency} rates chunk {chunk_start} → {chunk_end}")
+
+                chunk = self.get_exchange_rates(currency, chunk_start, chunk_end)
+                if not chunk:
+                    logger.error(f"Failed to fetch rates for {currency} from {chunk_start} to {chunk_end}")
+                all_rates.update(chunk)
+
+                # next window
+                chunk_start = chunk_end + timedelta(days=1)
+
+            if all_rates:
+                rates_by_currency[currency] = all_rates
             else:
-                logger.error(f"Failed to get rates for {currency}")
+                logger.error(f"Failed to get any rates for {currency}")
 
         return rates_by_currency
