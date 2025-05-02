@@ -1,4 +1,5 @@
 [![Build and Test CryptoHub](https://github.com/pmalirz/cryptohub-console/actions/workflows/python-app.yml/badge.svg)](https://github.com/pmalirz/cryptohub-console/actions/workflows/python-app.yml)
+[![codecov](https://codecov.io/gh/pmalirz/cryptohub-console/graph/badge.svg?token=TPK05ZY9ST)](https://codecov.io/gh/pmalirz/cryptohub-console)
 
 # CryptoHub (Console Tool)
 
