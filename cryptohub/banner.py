@@ -31,7 +31,7 @@ def display_banner():
         border_style="green",
         padding=(1, 2),
         title="[bold green]CryptoHub[/]",
-        subtitle="[bold green]v2025.02-1[/]"
+        subtitle="[bold green]v1.0.3 (2025-05-02)[/]"
     )
 
     # Print with spacing
