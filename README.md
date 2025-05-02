@@ -1,3 +1,5 @@
+[![Build and Test CryptoHub](https://github.com/pmalirz/cryptohub-console/actions/workflows/python-app.yml/badge.svg)](https://github.com/pmalirz/cryptohub-console/actions/workflows/python-app.yml)
+
 # CryptoHub (Console Tool)
 
 <img src="docs/cryptohub.png" alt="CryptoHub Logo" width="150">
