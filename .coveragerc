@@ -2,8 +2,13 @@
 source = cryptohub
 omit = 
     */tests/*
-    */__init__.py
-    */set_logging.py
+    */venv/*
+    */cryptohub/__init__.py
+    */cryptohub/__main__.py
+    */cryptohub/help.py
+    */cryptohub/set_logging.py
+    */cryptohub/banner.py
+    */cryptohub/main.py
 
 [report]
 exclude_lines =
@@ -12,3 +17,21 @@ exclude_lines =
     raise NotImplementedError
     if __name__ == .__main__.:
     pass
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__    
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    @abstractmethod  
+    if TYPE_CHECKING:  
+    except ImportError:  
+
+# Controls report output precision
+precision = 2
+
+# Shows which specific lines are missing coverage
+show_missing = True
